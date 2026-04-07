@@ -1,0 +1,9 @@
+spring:
+  mongodb:
+    port: 27017
+    database: gamerating
+    username: gamerating
+    password: pass
+    host: localhost
+    representation:
+      uuid: standard
