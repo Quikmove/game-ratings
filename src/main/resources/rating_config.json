@@ -1,0 +1,191 @@
+{
+  "scale": {
+    "min": 0,
+    "max": 10
+  },
+  "ratings": [
+    {
+      "id": "gameplay_design_rating",
+      "name": "Gameplay & Design Rating",
+      "description": "How the game plays, feels, and engages the player.",
+      "type": "calculated",
+      "factors": [
+        {
+          "id": "core_gameplay_loop",
+          "name": "Core Gameplay Loop",
+          "description": "Engagement and satisfaction of repeated gameplay actions."
+        },
+        {
+          "id": "controls_responsiveness",
+          "name": "Controls & Responsiveness",
+          "description": "Accuracy and reliability of player inputs."
+        },
+        {
+          "id": "difficulty_balance",
+          "name": "Difficulty Balance",
+          "description": "Fairness and scalability of challenge."
+        },
+        {
+          "id": "mechanics_depth",
+          "name": "Mechanics Depth",
+          "description": "Complexity and mastery of game systems."
+        },
+        {
+          "id": "progression_design",
+          "name": "Progression Design",
+          "description": "Pacing and reward structure over time."
+        },
+        {
+          "id": "level_design",
+          "name": "Level Design",
+          "description": "Layout, flow, and creativity of playable spaces."
+        },
+        {
+          "id": "replayability",
+          "name": "Replayability",
+          "description": "Motivation to replay or continue playing."
+        }
+      ],
+      "calculation": {
+        "method": "factor_average"
+      },
+      "adjustments": []
+    },
+    {
+      "id": "graphics_art_rating",
+      "name": "Graphics & Art Rating",
+      "description": "Visual quality, style, and clarity of presentation.",
+      "type": "manual",
+      "factors": [
+        {
+          "id": "art_direction",
+          "name": "Art Direction",
+          "description": "Cohesiveness and creativity of the visual style."
+        },
+        {
+          "id": "visual_fidelity",
+          "name": "Visual Fidelity",
+          "description": "Technical quality and detail of graphics."
+        },
+        {
+          "id": "animation_quality",
+          "name": "Animation Quality",
+          "description": "Smoothness and expressiveness of animations."
+        },
+        {
+          "id": "character_design",
+          "name": "Character Design",
+          "description": "Visual appeal and uniqueness of characters."
+        },
+        {
+          "id": "environment_design",
+          "name": "Environment Design",
+          "description": "Quality and variety of environments."
+        },
+        {
+          "id": "ui_visuals",
+          "name": "UI Visuals",
+          "description": "Aesthetic quality and clarity of the user interface."
+        },
+        {
+          "id": "visual_readability",
+          "name": "Visual Readability",
+          "description": "Ease of understanding visual information during gameplay."
+        }
+      ],
+
+      "adjustments": [
+        {
+          "id": "art_feel",
+          "name": "Art Feel",
+          "description": "Analyst's subjective impression of the art.",
+          "impact": "read_only",
+          "valueRange": {
+            "min": -2,
+            "max": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "game_quality_score_rating",
+      "name": "Game Quality Score Rating",
+      "description": "Average of Gameplay & Design and Graphics & Art ratings.",
+      "type": "calculated",
+      "factors": [],
+      "calculation": {
+        "method": "rating-average",
+        "sourceRatings": [
+          {"ratingId": "gameplay_design_rating", "weight": 0.5},
+          {"ratingId": "graphics_art_rating", "weight": 0.5}
+        ]
+      },
+      "adjustments": [
+        {
+          "id": "game_feel",
+          "name": "Game Feel",
+          "description": "Overall gameplay feeling while playing.",
+          "impact": "affects_calculation",
+          "valueRange": {
+            "min": -2,
+            "max": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "monetization_value_rating",
+      "name": "Monetization & Value Rating",
+      "description": "Fairness, pricing, and value offered to the player.",
+      "type": "manual",
+      "factors": [
+        {
+          "id": "content_value",
+          "name": "Content Value",
+          "description": "Amount and quality of content for the price."
+        },
+        {
+          "id": "monetization_fairness",
+          "name": "Monetization Fairness",
+          "description": "Player-friendly and ethical monetization practices."
+        },
+        {
+          "id": "dlc_quality",
+          "name": "DLC / Expansion Quality",
+          "description": "Value and quality of additional paid content."
+        },
+        {
+          "id": "pay_to_win_risk",
+          "name": "Pay-to-Win Risk",
+          "description": "Impact of monetization on gameplay balance."
+        },
+        {
+          "id": "progression_grind",
+          "name": "Progression Grind",
+          "description": "Time investment required to advance."
+        },
+        {
+          "id": "long_term_value",
+          "name": "Long-Term Value",
+          "description": "Replay potential and ongoing post-launch support."
+        }
+      ],
+      "adjustments": []
+    },
+    {
+      "id": "final_rating",
+      "name": "Final Rating",
+      "description": "Final weighted score combining quality and monetization.",
+      "type": "calculated",
+      "factors": [],
+      "calculation": {
+        "method": "rating-average",
+        "sourceRatings": [
+          {"ratingId": "game_quality_score_rating", "weight": 0.9},
+          {"ratingId": "monetization_value_rating", "weight": 0.1}
+        ]
+      },
+      "adjustments": []
+    }
+  ]
+}
