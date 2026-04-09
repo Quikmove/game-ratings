@@ -2,7 +2,7 @@ type Query {
     games: [GameDto!]!,
     game(id: ID!): GameDto,
     ratings(gameId: ID!): [RatingDto!]!,
-    rating(game_id: ID!, id: ID!): RatingDto,
+    rating(gameId: ID!, id: ID!): RatingDto
 }
 
 type Mutation {
@@ -18,7 +18,7 @@ type GameDto {
     id: ID!,
     title: String!,
     description: String!,
-    factorScale: Scale,
+    factorScale: Scale
 }
 
 
@@ -28,7 +28,7 @@ type RatingDto {
     description: String!,
     factors: [FactorDto]!,
     adjustments: [AdjustmentDto]!,
-    value: Float,
+    value: Float
 }
 
 type Scale {
@@ -38,10 +38,12 @@ type Scale {
 
 
 type FactorDto {
-    id: String,
+    id: ID,
+    gameId: ID,
+    ratingId: ID,
     title: String,
     description: String,
-    value: Float,
+    value: Float
 }
 
 
@@ -52,8 +54,8 @@ type AdjustmentDto {
 }
 
 input CreateGameInput {
-    title: String,
-    description: String
+    title: String!,
+    description: String!
 }
 
 input GameInput {
@@ -75,7 +77,7 @@ input FactorInput {
     factorId: ID!,
     title: String,
     description: String,
-    value: Float,
+    value: Float
 }
 
 input AdjustmentInput {
