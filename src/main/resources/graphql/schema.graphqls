@@ -1,0 +1,87 @@
+type Query {
+    games: [GameDto!]!,
+    game(id: ID!): GameDto,
+    ratings(gameId: ID!): [RatingDto!]!,
+    rating(game_id: ID!, id: ID!): RatingDto,
+}
+
+type Mutation {
+    updateRating(input: RatingInput!): RatingDto,
+    updateFactor(input: FactorInput!): Boolean,
+    updateAdjustment(input: AdjustmentInput!): Boolean,
+    createGame(input: CreateGameInput!): GameDto,
+    updateGame(input: GameInput!): Boolean
+}
+
+
+type GameDto {
+    id: ID!,
+    title: String!,
+    description: String!,
+    factorScale: Scale,
+}
+
+
+type RatingDto {
+    id: ID!,
+    title: String!,
+    description: String!,
+    factors: [FactorDto]!,
+    adjustments: [AdjustmentDto]!,
+    value: Float,
+}
+
+type Scale {
+    min: Float,
+    max: Float
+}
+
+
+type FactorDto {
+    id: String,
+    title: String,
+    description: String,
+    value: Float,
+}
+
+
+type AdjustmentDto {
+    id: ID,
+    type: String,
+    value: Float
+}
+
+input CreateGameInput {
+    title: String,
+    description: String
+}
+
+input GameInput {
+    id: ID!,
+    title: String,
+    description: String
+}
+
+
+input RatingInput {
+    gameId: ID!,
+    ratingId: ID!,
+    value: Float
+}
+
+input FactorInput {
+    gameId: ID!,
+    ratingId: ID!,
+    factorId: ID!,
+    title: String,
+    description: String,
+    value: Float,
+}
+
+input AdjustmentInput {
+    gameId: ID!,
+    ratingId: ID!,
+    adjustmentId: ID!,
+    type: String,
+    value: Float
+}
