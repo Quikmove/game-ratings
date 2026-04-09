@@ -6,14 +6,11 @@ import com.karifovas.gamerating.model.AdjustmentType;
 import com.karifovas.gamerating.model.Factor;
 import com.karifovas.gamerating.model.Rating;
 import com.karifovas.gamerating.model.RatingConfiguration;
-import com.karifovas.gamerating.model.RatingStatus;
 import com.karifovas.gamerating.model.RatingType;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.NullValueMappingStrategy;
-
-import java.util.List;
 
 @Mapper(
         componentModel = "spring",
@@ -66,7 +63,7 @@ public interface RatingConfigurationMapper {
 
     @Named("normalizeType")
     default RatingType normalizeType(ExternalRatingConfiguration.Rating rating) {
-        if(rating.type() == null ) {
+        if (rating.type() == null) {
             throw new RuntimeException("Rating type is missing");
         }
         if ("manual".equalsIgnoreCase(rating.type())) {
@@ -79,7 +76,7 @@ public interface RatingConfigurationMapper {
 
         var calculation = rating.calculation();
         if (calculation == null || calculation.method() == null) {
-            throw new RuntimeException("Type is \"calculated, but calculation is not provided");
+            throw new RuntimeException("Type is \"calculated\", but calculation is not provided");
         }
 
         if ("rating-average".equalsIgnoreCase(calculation.method())) {
