@@ -5,7 +5,7 @@ import java.util.List;
 public record Rating(
         String id,
         String gameId,
-        String title,
+        String name,
         String description,
         List<Factor> factors,
         Float value,

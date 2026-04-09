@@ -74,6 +74,9 @@ public record ExternalRatingConfiguration(
     }
 
     public record Adjustment(
+            String id,
+            String name,
+            String description,
             String type,
             ValueScale valueScale,
             String impact,

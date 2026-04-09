@@ -1,7 +1,10 @@
 package com.karifovas.gamerating.model;
 
 public record Adjustment(
-        String type,
+        String id,
+        String name,
+        String description,
+        AdjustmentType type,
         Float value,
         ValueScale valueScale
 ) {
