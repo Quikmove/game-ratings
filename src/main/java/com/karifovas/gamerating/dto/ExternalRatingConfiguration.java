@@ -1,92 +1,64 @@
 package com.karifovas.gamerating.dto;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
 public record ExternalRatingConfiguration(
-        Configuration configuration,
-        Scale scale,
-        List<Game> games,
-        List<Rating> ratings
+        @NotNull @Valid Scale scale,
+        @NotNull @Valid List<@Valid Rating> ratings
 ) {
-    public record Configuration(
-            Scale factorScale,
-            AdjustmentScale adjustmentScale
-    ) {
-    }
-
     public record Scale(
-            float min,
-            float max
-    ) {
-    }
-
-    public record AdjustmentScale(
-            float min,
-            float max
+            @NotNull Float min,
+            @NotNull Float max
     ) {
     }
 
     public record Game(
-            String id,
-            String title,
-            String description
+            @NotNull String id,
+            @NotNull String name,
+            @NotNull String description
     ) {
     }
 
     public record Rating(
-            String id,
-            String title,
-            String name,
-            String description,
-            List<Factor> factors,
-            String status,
-            String type,
-            Calculation calculation,
-            List<DrivingRating> drivingRatings,
-            List<Adjustment> adjustments
+            @NotNull String id,
+            @NotNull String name,
+            @NotNull String description,
+            @NotNull @Valid List<@Valid Factor> factors,
+            @NotNull String type,
+            @Valid Calculation calculation,
+            @NotNull @Valid List<@Valid Adjustment> adjustments
     ) {
     }
 
     public record Factor(
-            String id,
-            String title,
-            String name,
-            String description
+            @NotNull String id,
+            @NotNull String name,
+            @NotNull String description
     ) {
     }
 
     public record Calculation(
-            String method,
-            List<SourceRating> sourceRatings
+            @NotNull String method,
+            @Valid List<@Valid SourceRating> sourceRatings
     ) {
     }
 
     public record SourceRating(
-            String ratingId,
-            Float weight
-    ) {
-    }
-
-    public record DrivingRating(
-            String id,
-            Float weight
+            @NotBlank String ratingId,
+            @NotNull Float weight
     ) {
     }
 
     public record Adjustment(
-            String id,
-            String name,
-            String description,
-            String type,
-            ValueScale valueScale,
-            String impact,
-            Scale valueRange
-    ) {
-    }
-
-    public record ValueScale(
-            float min,
-            float max
+            @NotNull String id,
+            @NotNull String name,
+            @NotNull String description,
+            @NotNull String impact,
+            @NotNull @Valid Scale valueRange
     ) {
     }
 }
