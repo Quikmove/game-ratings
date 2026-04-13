@@ -9,6 +9,7 @@ import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -20,22 +21,29 @@ public class RatingConfigurationRepositoryImpl implements RatingConfigurationRep
 
     private final RatingConfigurationMapper configMapper;
     private final Validator validator;
+    private final ObjectMapper objectMapper;
 
     @Override
-    public RatingConfiguration getRatingConfiguration() throws IOException {
-        var objectMapper = new ObjectMapper();
+    public Mono<RatingConfiguration> getRatingConfiguration() {
+        return Mono.just(getConfigFromFile());
+    }
 
-        var externalConfiguration = objectMapper.readValue(
-                new ClassPathResource("rating_config.json").getInputStream(),
-                ExternalRatingConfiguration.class
-        );
+    private RatingConfiguration getConfigFromFile() {
+        try {
+            ExternalRatingConfiguration externalConfiguration;
 
-        Set<ConstraintViolation<ExternalRatingConfiguration>> violations = validator.validate(externalConfiguration);
+            try (var inputStream = new ClassPathResource("rating_config.json").getInputStream()) {
+                externalConfiguration = objectMapper.readValue(inputStream, ExternalRatingConfiguration.class);
+            }
 
-        if(!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
+            Set<ConstraintViolation<ExternalRatingConfiguration>> violations = validator.validate(externalConfiguration);
+            if (!violations.isEmpty()) {
+                throw new ConstraintViolationException(violations);
+            }
+
+            return configMapper.map(externalConfiguration);
+        } catch (IOException ex) {
+            throw new IllegalStateException("Failed to load rating configuration", ex);
         }
-
-        return configMapper.map(externalConfiguration);
     }
 }
