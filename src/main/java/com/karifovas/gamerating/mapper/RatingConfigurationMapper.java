@@ -25,6 +25,8 @@ public interface RatingConfigurationMapper {
 
     RatingConfiguration.Scale toScale(ExternalRatingConfiguration.Scale scale);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "code", source = "id")
     @Mapping(target = "gameId", ignore = true)
     @Mapping(target = "name", source = "name")
     @Mapping(target = "value", ignore = true)
@@ -33,16 +35,21 @@ public interface RatingConfigurationMapper {
     @Mapping(target = "drivingRatings", source = "calculation.sourceRatings")
     Rating toRating(ExternalRatingConfiguration.Rating externalRating);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "code", source = "id")
     @Mapping(target = "name", source = "name")
     @Mapping(target = "value", ignore = true)
     Factor toFactor(ExternalRatingConfiguration.Factor externalFactor);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "code", source = "id")
     @Mapping(target = "type", source = ".", qualifiedByName = "resolveAdjustmentType")
     @Mapping(target = "value", ignore = true)
     @Mapping(target = "valueScale", source = "valueRange")
     Adjustment toAdjustment(ExternalRatingConfiguration.Adjustment externalAdjustment);
 
-    @Mapping(target = "id", source = "ratingId")
+
+    @Mapping(target = "ratingId", source = "ratingId")
     @Mapping(target = "weight", source = "weight")
     Rating.DrivingRating toDrivingRating(ExternalRatingConfiguration.SourceRating externalSourceRating);
 

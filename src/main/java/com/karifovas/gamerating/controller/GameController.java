@@ -1,5 +1,6 @@
 package com.karifovas.gamerating.controller;
 
+import com.karifovas.gamerating.dto.CreateGameInput;
 import com.karifovas.gamerating.dto.GameDto;
 import com.karifovas.gamerating.dto.GameInput;
 import com.karifovas.gamerating.service.GameService;
@@ -32,7 +33,7 @@ public class GameController {
     }
 
     @MutationMapping(name = "createGame")
-    public Mono<GameDto> createGame(@Valid @Argument GameInput input) {
+    public Mono<GameDto> createGame(@Valid @Argument CreateGameInput input) {
         return gameService.createGame(input).map(GameDto::from);
     }
 

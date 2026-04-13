@@ -8,22 +8,22 @@ import java.util.List;
 @Setter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class Rating {
-    private String id;
-    private String gameId;
-    private String name;
-    private String description;
-    private List<Factor> factors = List.of();
+    private final String id;
+    private final String code;
+    private final String gameId;
+    private final String name;
+    private final String description;
+    private List<Factor> factors;
     private Float value;
     private RatingStatus status;
-    private RatingType type;
-    private List<DrivingRating> drivingRatings = List.of();
-    private List<Adjustment> adjustments = List.of();
+    private final RatingType type;
+    private List<DrivingRating> drivingRatings;
+    private List<Adjustment> adjustments;
 
     public Rating deepCopyForGame(String gameId) {
         return Rating.builder()
-                .id(this.id)
+                .code(this.code)
                 .gameId(gameId)
                 .name(this.name)
                 .description(this.description)
@@ -36,16 +36,9 @@ public class Rating {
                 .build();
     }
 
-
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    public static class DrivingRating {
-        private String id;
-        private float weight;
-
-        public DrivingRating copy() {
-            return new DrivingRating(this.id, this.weight);
+        public record DrivingRating(String id, String ratingId, float weight) {
+            public DrivingRating copy() {
+                return new DrivingRating(this.id, this.ratingId, this.weight);
+            }
         }
-    }
 }

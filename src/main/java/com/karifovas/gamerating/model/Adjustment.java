@@ -1,35 +1,24 @@
 package com.karifovas.gamerating.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.data.annotation.PersistenceCreator;
+import lombok.*;
 
-@AllArgsConstructor
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
 public class Adjustment {
     private final String id;
+    private final String code;
     private final String name;
     private final String description;
     private final AdjustmentType type;
     private final ValueScale valueScale;
     private Float value;
 
-    @PersistenceCreator
-    public Adjustment(String id, String name, String description, AdjustmentType type, ValueScale valueScale) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.type = type;
-        this.valueScale = valueScale;
-    }
-
     public Adjustment copy() {
         return Adjustment.builder()
                 .id(this.id)
+                .code(this.code)
                 .name(this.name)
                 .description(this.description)
                 .type(this.type)

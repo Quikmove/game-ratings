@@ -1,5 +1,6 @@
 package com.karifovas.gamerating.service;
 
+import com.karifovas.gamerating.dto.CreateGameInput;
 import com.karifovas.gamerating.dto.GameInput;
 import com.karifovas.gamerating.model.Game;
 import com.karifovas.gamerating.repository.GameRepository;
@@ -29,28 +30,30 @@ public class GameService {
     }
 
 
-    public Mono<Game> createGame(GameInput input) {
+    public Mono<Game> createGame(CreateGameInput input) {
         return configurationRepository.getRatingConfiguration()
                 .flatMap(configuration -> {
                     var scale = configuration.factorScale();
-                    var ratings = configuration.ratings().stream()
-                            .map(rating -> rating.deepCopyForGame(input.id()))
-                            .toList();
 
                     var game = Game.builder()
-                            .id(input.id())
                             .name(input.name())
                             .description(input.description())
                             .factorScale(new Game.Scale(scale.min(), scale.max()))
                             .build();
 
                     return gameRepository.save(game)
-                            .flatMap(savedGame -> ratingRepository
-                                    .saveAll(ratings)
-                                    .then(Mono.just(savedGame)));
+                            .flatMap(savedGame -> {
+                                var ratings = configuration.ratings().stream()
+                                        .map(rating -> rating.deepCopyForGame(savedGame.getId()))
+                                        .toList();
+
+                                return ratingRepository
+                                        .saveAll(ratings)
+                                        .then(Mono.just(savedGame));
+                            });
                 })
                 .doOnError(error ->
-                        log.error("Failed to create game {}", input.id(), error));
+                        log.error("Failed to create game {}", input.name(), error));
     }
 
     public Mono<Boolean> updateGame(GameInput input) {
@@ -63,9 +66,11 @@ public class GameService {
                         game.setDescription(input.description());
                     }
 
-                    return Mono.just(true);
+                    return gameRepository.save(game)
+                            .then(Mono.just(true));
                 })
-                .switchIfEmpty(Mono.just(false));
+                .switchIfEmpty(Mono.error(
+                        new RuntimeException("Game doesnt exist with id: %s".formatted(input.id()))));
     }
 
     public Mono<Game.Scale> getScale(String gameId) {

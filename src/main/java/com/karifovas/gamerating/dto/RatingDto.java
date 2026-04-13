@@ -8,6 +8,7 @@ import java.util.List;
 @Builder
 public record RatingDto(
         String id,
+        String code,
         String name,
         String description,
         List<FactorDto> factors,
@@ -18,6 +19,7 @@ public record RatingDto(
     public static RatingDto from(Rating rating) {
         return RatingDto.builder()
                 .id(rating.getId())
+                .code(rating.getCode())
                 .name(rating.getName())
                 .description(rating.getDescription())
                 .factors(rating.getFactors().stream().map(FactorDto::from).toList())

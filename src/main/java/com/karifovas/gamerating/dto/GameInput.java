@@ -1,7 +1,9 @@
 package com.karifovas.gamerating.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record GameInput(
-        String id,
+        @NotBlank String id,
         String name,
         String description
 ) {

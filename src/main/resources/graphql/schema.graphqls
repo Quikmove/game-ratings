@@ -9,7 +9,7 @@ type Mutation {
     updateRating(input: RatingInput!): RatingDto,
     updateFactor(input: FactorInput!): Boolean,
     updateAdjustment(input: AdjustmentInput!): Boolean,
-    createGame(input: GameInput!): GameDto,
+    createGame(input: CreateGameInput!): GameDto,
     updateGame(input: GameInput!): Boolean
 }
 
@@ -63,6 +63,10 @@ input GameInput {
     description: String
 }
 
+input CreateGameInput {
+    name: String!,
+    description: String!
+}
 
 input RatingInput {
     gameId: ID!,
