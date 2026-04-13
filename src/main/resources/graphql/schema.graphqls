@@ -59,7 +59,7 @@ type AdjustmentDto {
 
 input GameInput {
     id: ID!,
-    title: String,
+    name: String,
     description: String
 }
 

@@ -23,7 +23,7 @@ public record GameDto(
     public static GameDto from(Game game) {
         return GameDto.builder()
                 .id(game.getId())
-                .name(game.getTitle())
+                .name(game.getName())
                 .description(game.getDescription())
                 .factorScale(Scale.from(game.getFactorScale()))
                 .build();

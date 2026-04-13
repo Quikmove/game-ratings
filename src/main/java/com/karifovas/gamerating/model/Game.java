@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 public class Game {
     private String id;
-    private String title;
+    private String name;
     private String description;
     private final Scale factorScale;
 
