@@ -24,6 +24,7 @@ public record RatingDto(
                 .description(rating.getDescription())
                 .factors(rating.getFactors().stream().map(FactorDto::from).toList())
                 .adjustments(rating.getAdjustments().stream().map(AdjustmentDto::from).toList())
+                .value(rating.getValue())
                 .build();
     }
 }
