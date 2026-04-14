@@ -1,6 +1,5 @@
 package com.karifovas.gamerating.service;
 
-import com.karifovas.gamerating.exception.MissingValueException;
 import com.karifovas.gamerating.model.Factor;
 import com.karifovas.gamerating.model.Rating;
 import com.karifovas.gamerating.repository.RatingRepository;
@@ -60,14 +59,10 @@ public class RatingCalculationService {
 
 
     private Mono<Float> calculateValue(Rating rating, Map<String, Rating> ratingsByCode) {
-        if (rating.getType() == null) {
-            return Mono.error(new MissingValueException("Rating type is missing"));
-        }
-
         return switch (rating.getType()) {
             case MANUAL -> {
                 if (rating.getValue() == null) {
-                    yield Mono.error(new MissingValueException("Manual rating value is missing"));
+                    yield Mono.empty();
                 }
                 yield Mono.just(rating.getValue());
             }
@@ -79,7 +74,7 @@ public class RatingCalculationService {
 
     private Mono<Float> calculateByFactorAverage(List<Factor> factors) {
         if (factors.stream().anyMatch(f -> f.getValue() == null)) {
-            return Mono.error(new MissingValueException("Not all factors have values"));
+            return Mono.empty();
         }
 
         return Mono.just((float) factors.stream()
@@ -97,7 +92,7 @@ public class RatingCalculationService {
 
 
         if (ratingCodes.stream().map(ratingsByCode::get).anyMatch(r -> r.getValue() == null)) {
-            return Mono.error(new MissingValueException("Some referenced ratings have no value"));
+            return Mono.empty();
         }
 
         double weightedSum = drivingRatings.stream()
