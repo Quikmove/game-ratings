@@ -1,6 +1,7 @@
 package com.karifovas.gamerating.model;
 
 import lombok.*;
+import lombok.experimental.FieldNameConstants;
 
 import java.util.List;
 
@@ -8,6 +9,7 @@ import java.util.List;
 @Setter
 @Builder
 @AllArgsConstructor
+@FieldNameConstants
 public class Rating {
     private final String id;
     private final String code;

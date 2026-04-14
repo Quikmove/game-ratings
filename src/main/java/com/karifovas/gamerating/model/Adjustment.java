@@ -1,11 +1,13 @@
 package com.karifovas.gamerating.model;
 
 import lombok.*;
+import lombok.experimental.FieldNameConstants;
 
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
+@FieldNameConstants
 public class Adjustment {
     private final String id;
     private final String code;

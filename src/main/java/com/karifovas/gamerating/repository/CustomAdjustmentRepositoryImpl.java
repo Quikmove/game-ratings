@@ -14,16 +14,18 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class CustomAdjustmentRepositoryImpl implements CustomAdjustmentRepository, AdjustmentRepository {
 
+    public static final String ADJUSTMENTS_ID_KEY = Rating.Fields.adjustments + "." + Adjustment.Fields.id;
+    public static final String ADJUSTMENTS_UPDATE_VALUE_KEY = Rating.Fields.adjustments + ".$." + Adjustment.Fields.value;
     private final ReactiveMongoTemplate mongoTemplate;
 
     @Override
     public Mono<Adjustment> findById(String id, String ratingId, String gameId) {
         var query = Query.query(
-                Criteria.where("gameId").is(gameId)
-                        .and("id").is(ratingId)
-                        .and("adjustments.id").is(id)
+                Criteria.where(Rating.Fields.gameId).is(gameId)
+                        .and(Rating.Fields.id).is(ratingId)
+                        .and(ADJUSTMENTS_ID_KEY).is(id)
         );
-        query.fields().elemMatch("adjustments", Criteria.where("id").is(id));
+        query.fields().elemMatch(Rating.Fields.adjustments, Criteria.where(Adjustment.Fields.id).is(id));
 
         return mongoTemplate.findOne(query, Rating.class)
                 .flatMap(rating -> {
@@ -42,12 +44,12 @@ public class CustomAdjustmentRepositoryImpl implements CustomAdjustmentRepositor
     @Override
     public Mono<Boolean> updateValue(String id, String ratingId, String gameId, Float value) {
         var query = Query.query(
-                Criteria.where("gameId").is(gameId)
-                        .and("id").is(ratingId)
-                        .and("adjustments.id").is(id)
+                Criteria.where(Rating.Fields.gameId).is(gameId)
+                        .and(Rating.Fields.id).is(ratingId)
+                        .and(ADJUSTMENTS_ID_KEY).is(id)
         );
 
-        Update update = new Update().set("adjustments.$.value", value);
+        Update update = new Update().set(ADJUSTMENTS_UPDATE_VALUE_KEY, value);
 
         return mongoTemplate.updateFirst(query, update, Rating.class)
                 .flatMap(result -> result.getMatchedCount() == 0
