@@ -52,8 +52,6 @@ public class CustomAdjustmentRepositoryImpl implements CustomAdjustmentRepositor
         Update update = new Update().set(ADJUSTMENTS_UPDATE_VALUE_KEY, value);
 
         return mongoTemplate.updateFirst(query, update, Rating.class)
-                .flatMap(result -> result.getMatchedCount() == 0
-                        ? Mono.just(false)
-                        : Mono.just(true));
+                .map(result -> result.getModifiedCount() > 0);
     }
 }
