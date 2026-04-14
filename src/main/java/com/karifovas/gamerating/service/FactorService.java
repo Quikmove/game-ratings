@@ -1,6 +1,7 @@
 package com.karifovas.gamerating.service;
 
 import com.karifovas.gamerating.dto.FactorInput;
+import com.karifovas.gamerating.exception.FactorNotFoundException;
 import com.karifovas.gamerating.exception.ValueOutOfRangeException;
 import com.karifovas.gamerating.repository.FactorRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,10 @@ public class FactorService {
                     }
 
                     return factorRepository.findById(input.factorId(), input.ratingId(), input.gameId())
+                            .switchIfEmpty(Mono.error(
+                                    new FactorNotFoundException("Couldn't find factor with id: %s, ratingId: %s, gameId: %s"
+                                            .formatted(input.factorId(), input.ratingId(), input.gameId()))
+                            ))
                             .flatMap(factor -> {
                                 if (!hasChanged(factor.getValue(), input.value())) {
                                     return Mono.just(false);

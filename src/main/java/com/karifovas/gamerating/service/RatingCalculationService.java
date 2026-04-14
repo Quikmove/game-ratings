@@ -1,5 +1,6 @@
 package com.karifovas.gamerating.service;
 
+import com.karifovas.gamerating.exception.RatingNotFoundException;
 import com.karifovas.gamerating.model.Factor;
 import com.karifovas.gamerating.model.Rating;
 import com.karifovas.gamerating.repository.RatingRepository;
@@ -21,6 +22,14 @@ public class RatingCalculationService {
 
     public Mono<Boolean> calculateScore(Rating rating) {
         return ratingRepository.findAllByGameId(rating.getGameId())
+                .switchIfEmpty(
+                        Mono.error(
+                                new RatingNotFoundException(
+                                        "Ratings not found with gameId: %s"
+                                                .formatted(rating.getGameId())
+                                )
+                        )
+                )
                 .collectList()
                 .flatMap(allRatings -> {
                     Map<String, Rating> ratingsByCode = Stream.concat(allRatings.stream(), Stream.of(rating))

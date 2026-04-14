@@ -63,19 +63,22 @@ public class GameService {
 
     public Mono<Boolean> updateGame(GameInput input) {
         return gameRepository.findById(input.id())
+                .switchIfEmpty(
+                        Mono.error(
+                                new GameNotFoundException("Game not found with id: %s"
+                                        .formatted(input.id())))
+                )
                 .flatMap(game -> {
-                    if(input.name() != null) {
+                    if (input.name() != null) {
                         game.setName(input.name());
                     }
-                    if(input.description() != null) {
+                    if (input.description() != null) {
                         game.setDescription(input.description());
                     }
 
                     return gameRepository.save(game)
                             .then(Mono.just(true));
-                })
-                .switchIfEmpty(Mono.error(
-                        new GameNotFoundException("Game not found with id: %s".formatted(input.id()))));
+                });
     }
 
     private Rating generateIdsForRating(Rating rating) {

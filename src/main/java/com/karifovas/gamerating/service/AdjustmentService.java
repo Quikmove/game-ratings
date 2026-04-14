@@ -1,6 +1,7 @@
 package com.karifovas.gamerating.service;
 
 import com.karifovas.gamerating.dto.AdjustmentInput;
+import com.karifovas.gamerating.exception.AdjustmentNotFoundException;
 import com.karifovas.gamerating.exception.ValueOutOfRangeException;
 import com.karifovas.gamerating.model.AdjustmentType;
 import com.karifovas.gamerating.repository.AdjustmentRepository;
@@ -21,6 +22,14 @@ public class AdjustmentService {
 
     public Mono<Boolean> updateAdjustment(AdjustmentInput input) {
         return adjustmentRepository.findById(input.adjustmentId(), input.ratingId(), input.gameId())
+                .switchIfEmpty(
+                        Mono.error(
+                                new AdjustmentNotFoundException(
+                                        "Adjustment not found with id: %s, ratingId: %s, gameId: %s"
+                                                .formatted(input.adjustmentId(), input.ratingId(), input.gameId())
+                                )
+                        )
+                )
                 .flatMap(adjustment -> {
                     var scale = adjustment.getValueScale();
 

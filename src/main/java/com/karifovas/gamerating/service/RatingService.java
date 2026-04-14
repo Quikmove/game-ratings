@@ -1,6 +1,7 @@
 package com.karifovas.gamerating.service;
 
 import com.karifovas.gamerating.dto.RatingInput;
+import com.karifovas.gamerating.exception.GameNotFoundException;
 import com.karifovas.gamerating.exception.RatingNotFoundException;
 import com.karifovas.gamerating.exception.ValueOutOfRangeException;
 import com.karifovas.gamerating.model.Rating;
@@ -20,11 +21,24 @@ public class RatingService {
     private final ScaleService scaleService;
 
     public Flux<Rating> getRatingsByGameId(String gameId) {
-        return ratingRepository.findAllByGameId(gameId);
+        return ratingRepository.findAllByGameId(gameId)
+                .switchIfEmpty(
+                        Mono.error(
+                        new RatingNotFoundException("Ratings not found by gameId: %s"
+                                .formatted(gameId)))
+                );
     }
 
     public Mono<Rating> getRatingByIdAndGameId(String id, String gameId) {
-        return ratingRepository.findByIdAndGameId(id, gameId);
+        return ratingRepository.findByIdAndGameId(id, gameId)
+                .switchIfEmpty(
+                        Mono.error(
+                                new GameNotFoundException(
+                                        "Rating not found with id: %s, gameId: %s"
+                                                .formatted(id, gameId)
+                                )
+                        )
+                );
     }
 
     public Mono<Boolean> updateRating(RatingInput input) {
@@ -35,7 +49,7 @@ public class RatingService {
                 .flatMap(rating -> {
                     if (rating.getType() != RatingType.MANUAL) {
                         return Mono.error(
-                                new IllegalStateException("Can't change rating value for non manual rating"));
+                                new IllegalStateException("Can't change rating value for non manual type rating"));
                     }
 
                     return scaleService.getGameFactorScale(input.gameId())
