@@ -2,7 +2,6 @@ package com.karifovas.gamerating.service;
 
 import com.karifovas.gamerating.exception.GameNotFoundException;
 import com.karifovas.gamerating.model.Game;
-import com.karifovas.gamerating.repository.AdjustmentRepository;
 import com.karifovas.gamerating.repository.GameRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,7 +12,6 @@ import reactor.core.publisher.Mono;
 public class ScaleService {
 
     private final GameRepository gameRepository;
-    private final AdjustmentRepository adjustmentRepository;
 
     public Mono<Game.Scale> getGameFactorScale(String gameId) {
         return gameRepository.findById(gameId)
