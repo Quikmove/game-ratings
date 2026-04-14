@@ -3,12 +3,16 @@ package com.karifovas.gamerating.service;
 import com.karifovas.gamerating.dto.CreateGameInput;
 import com.karifovas.gamerating.dto.GameInput;
 import com.karifovas.gamerating.exception.GameNotFoundException;
+import com.karifovas.gamerating.model.Adjustment;
+import com.karifovas.gamerating.model.Factor;
 import com.karifovas.gamerating.model.Game;
+import com.karifovas.gamerating.model.Rating;
 import com.karifovas.gamerating.repository.GameRepository;
 import com.karifovas.gamerating.repository.RatingConfigurationRepository;
 import com.karifovas.gamerating.repository.RatingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -46,6 +50,8 @@ public class GameService {
                             .flatMap(savedGame -> {
                                 var ratings = configuration.ratings().stream()
                                         .map(rating -> rating.deepCopyForGame(savedGame.getId()))
+                                        .map(rating -> (Rating) rating) // fix for compile error when applying below static method
+                                        .map(this::generateIdsForRating)
                                         .toList();
 
                                 return ratingRepository
@@ -72,4 +78,53 @@ public class GameService {
                         new GameNotFoundException("Game not found with id: %s".formatted(input.id()))));
     }
 
+    private Rating generateIdsForRating(Rating rating) {
+        if (rating == null) {
+            return null;
+        }
+
+        if (rating.getFactors() != null) {
+            rating.setFactors(
+                    rating.getFactors().stream()
+                            .map(factor -> factor.getId() == null ?
+                                    Factor.builder()
+                                    .id(new ObjectId().toString())
+                                    .code(factor.getCode())
+                                    .name(factor.getName())
+                                    .description(factor.getDescription())
+                                    .value(factor.getValue())
+                                    .build()
+                                    : factor)
+                            .toList()
+            );
+        }
+
+        if (rating.getAdjustments() != null) {
+            rating.setAdjustments(
+                    rating.getAdjustments().stream()
+                            .map(adjustment -> adjustment.getId() == null ?
+                                    Adjustment.builder()
+                                    .id(new ObjectId().toString())
+                                    .code(adjustment.getCode())
+                                    .name(adjustment.getName())
+                                    .description(adjustment.getDescription())
+                                    .type(adjustment.getType())
+                                    .valueScale(adjustment.getValueScale())
+                                    .value(adjustment.getValue())
+                                    .build()
+                                    : adjustment)
+                            .toList()
+            );
+        }
+
+        if (rating.getDrivingRatings() != null) {
+            rating.setDrivingRatings(
+                    rating.getDrivingRatings().stream()
+                            .map(dr -> dr.id() == null ? new Rating.DrivingRating(new ObjectId().toString(), dr.ratingCode(), dr.weight()) : dr)
+                            .toList()
+            );
+        }
+
+        return rating;
+    }
 }
