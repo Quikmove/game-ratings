@@ -16,13 +16,6 @@ public record ExternalRatingConfiguration(
     ) {
     }
 
-    public record Game(
-            @NotNull String id,
-            @NotNull String name,
-            @NotNull String description
-    ) {
-    }
-
     public record Rating(
             @NotNull String id,
             @NotNull String name,
