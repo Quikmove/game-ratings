@@ -71,7 +71,7 @@ input CreateGameInput {
 input RatingInput {
     gameId: ID!,
     ratingId: ID!,
-    value: Float!
+    value: Float
 }
 
 input FactorInput {
