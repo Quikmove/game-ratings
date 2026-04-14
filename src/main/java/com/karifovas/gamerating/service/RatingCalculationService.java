@@ -61,6 +61,11 @@ public class RatingCalculationService {
                                                 currentRating.setValue(value);
                                                 return ratingRepository.save(currentRating);
                                             })
+                                            .switchIfEmpty(Mono.defer(() -> {
+                                                currentRating.setValue(null);
+                                                return ratingRepository.save(currentRating);
+                                            }))
+
                             )
                             .then(Mono.just(true));
                 });
