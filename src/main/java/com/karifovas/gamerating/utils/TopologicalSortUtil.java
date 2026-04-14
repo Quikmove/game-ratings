@@ -25,10 +25,14 @@ public class TopologicalSortUtil {
             return List.of();
         }
 
-        // Build a map of ID to node for quick lookups
+        // Build a map of ID to node for quick lookups, validating uniqueness
         Map<K, T> nodeMap = new HashMap<>();
         for (T node : nodes) {
-            nodeMap.put(idFn.apply(node), node);
+            K id = idFn.apply(node);
+            if (nodeMap.containsKey(id)) {
+                throw new IllegalArgumentException("Duplicate node ID detected: " + id);
+            }
+            nodeMap.put(id, node);
         }
 
         // Build adjacency list and in-degree count

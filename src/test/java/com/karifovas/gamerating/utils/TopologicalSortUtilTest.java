@@ -64,6 +64,23 @@ public class TopologicalSortUtilTest {
     }
 
     @Test
+    void throwsWhenDuplicateNodeIds() {
+        var duplicateNodes = List.of(
+                Rating.builder().code("rating_1").drivingRatings(List.of()).build(),
+                Rating.builder().code("rating_1").drivingRatings(List.of()).build()
+        );
+
+        var exception = assertThrows(IllegalArgumentException.class, () ->
+                TopologicalSortUtil.sort(duplicateNodes, Rating::getCode,
+                        rating -> rating.getDrivingRatings().stream()
+                                .map(Rating.DrivingRating::ratingCode)
+                                .toList())
+        );
+
+        assertTrue(exception.getMessage().contains("rating_1"), "Error message should include the duplicate ID");
+    }
+
+    @Test
     void findDependentsWhenNodeChanges() {
         var nodes = createTestRatings();
 
