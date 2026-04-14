@@ -96,7 +96,7 @@ public class TopologicalSortUtilTest {
         assertTrue(affectedWhenRating3Changes.contains("rating_2"), "rating_2 transitively depends on rating_3 (via rating_1)");
         assertEquals(3, affectedWhenRating3Changes.size(), "Only rating_3, rating_1, and rating_2 should be affected");
 
-        // When rating_4 changes, all other ratings are affected
+        // When rating_4 changes, only rating_4 and its dependents (rating_1 and rating_2) are affected
         var affectedWhenRating4Changes = TopologicalSortUtil.findDependents(
                 "rating_4",
                 nodes,
@@ -126,4 +126,3 @@ public class TopologicalSortUtilTest {
         assertEquals(2, affectedWhenRating5Changes.size(), "Only rating_5 and rating_2 should be affected");
     }
 }
-
