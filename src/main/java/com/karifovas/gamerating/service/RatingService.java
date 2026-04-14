@@ -1,7 +1,6 @@
 package com.karifovas.gamerating.service;
 
 import com.karifovas.gamerating.dto.RatingInput;
-import com.karifovas.gamerating.exception.GameNotFoundException;
 import com.karifovas.gamerating.exception.RatingNotFoundException;
 import com.karifovas.gamerating.exception.ValueOutOfRangeException;
 import com.karifovas.gamerating.model.Rating;
@@ -33,7 +32,7 @@ public class RatingService {
         return ratingRepository.findByIdAndGameId(id, gameId)
                 .switchIfEmpty(
                         Mono.error(
-                                new GameNotFoundException(
+                                new RatingNotFoundException(
                                         "Rating not found with id: %s, gameId: %s"
                                                 .formatted(id, gameId)
                                 )
@@ -61,7 +60,7 @@ public class RatingService {
                                 }
 
                                 if (!hasChanged(rating.getValue(), input.value())) {
-                                    return Mono.just(true);
+                                    return Mono.just(false);
                                 }
 
                                 rating.setValue(input.value());
