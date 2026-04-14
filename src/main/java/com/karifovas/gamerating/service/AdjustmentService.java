@@ -2,6 +2,7 @@ package com.karifovas.gamerating.service;
 
 import com.karifovas.gamerating.dto.AdjustmentInput;
 import com.karifovas.gamerating.exception.ValueOutOfRangeException;
+import com.karifovas.gamerating.model.AdjustmentType;
 import com.karifovas.gamerating.repository.AdjustmentRepository;
 import com.karifovas.gamerating.repository.RatingRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,9 @@ public class AdjustmentService {
                                 if (!success) {
                                     return Mono.just(false);
                                 }
-
+                                if(adjustment.getType() == AdjustmentType.READ_ONLY) {
+                                    return Mono.just(true);
+                                }
                                 return ratingRepository.findByIdAndGameId(input.ratingId(), input.gameId())
                                         .flatMap(ratingCalculationService::calculateScore);
                             });
