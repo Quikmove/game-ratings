@@ -6,7 +6,7 @@ type Query {
 }
 
 type Mutation {
-    updateRating(input: RatingInput!): RatingDto,
+    updateRating(input: RatingInput!): Boolean,
     updateFactor(input: FactorInput!): Boolean,
     updateAdjustment(input: AdjustmentInput!): Boolean,
     createGame(input: CreateGameInput!): GameDto,
