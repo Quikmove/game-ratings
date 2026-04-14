@@ -2,6 +2,7 @@ package com.karifovas.gamerating.service;
 
 import com.karifovas.gamerating.dto.CreateGameInput;
 import com.karifovas.gamerating.dto.GameInput;
+import com.karifovas.gamerating.exception.GameNotFoundException;
 import com.karifovas.gamerating.model.Game;
 import com.karifovas.gamerating.repository.GameRepository;
 import com.karifovas.gamerating.repository.RatingConfigurationRepository;
@@ -51,9 +52,7 @@ public class GameService {
                                         .saveAll(ratings)
                                         .then(Mono.just(savedGame));
                             });
-                })
-                .doOnError(error ->
-                        log.error("Failed to create game {}", input.name(), error));
+                });
     }
 
     public Mono<Boolean> updateGame(GameInput input) {
@@ -70,10 +69,7 @@ public class GameService {
                             .then(Mono.just(true));
                 })
                 .switchIfEmpty(Mono.error(
-                        new RuntimeException("Game doesnt exist with id: %s".formatted(input.id()))));
+                        new GameNotFoundException("Game not found with id: %s".formatted(input.id()))));
     }
 
-    public Mono<Game.Scale> getScale(String gameId) {
-        return gameRepository.findById(gameId).map(Game::getFactorScale);
-    }
 }
