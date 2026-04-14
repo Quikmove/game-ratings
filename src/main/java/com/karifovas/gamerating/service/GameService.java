@@ -11,13 +11,11 @@ import com.karifovas.gamerating.repository.GameRepository;
 import com.karifovas.gamerating.repository.RatingConfigurationRepository;
 import com.karifovas.gamerating.repository.RatingRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GameService {
