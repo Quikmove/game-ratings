@@ -1,8 +1,6 @@
 package com.karifovas.gamerating.service;
 
-import com.karifovas.gamerating.exception.AdjustmentNotFoundException;
 import com.karifovas.gamerating.exception.GameNotFoundException;
-import com.karifovas.gamerating.model.Adjustment;
 import com.karifovas.gamerating.model.Game;
 import com.karifovas.gamerating.repository.AdjustmentRepository;
 import com.karifovas.gamerating.repository.GameRepository;
@@ -24,14 +22,5 @@ public class ScaleService {
                                 .formatted(gameId))
                 ))
                 .map(Game::getFactorScale);
-    }
-
-    public Mono<Adjustment.ValueScale> getAdjustmentValueScale(String adjustmentId, String ratingId, String gameId) {
-        return adjustmentRepository.findById(adjustmentId, ratingId, gameId)
-                .switchIfEmpty(Mono.error(
-                        new AdjustmentNotFoundException("Couldn't find adjustment with id: %s, ratingId: %s, gameId: %s"
-                                .formatted(adjustmentId, ratingId, gameId))
-                ))
-                .map(Adjustment::getValueScale);
     }
 }
