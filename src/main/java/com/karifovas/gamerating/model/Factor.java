@@ -1,12 +1,13 @@
 package com.karifovas.gamerating.model;
 
 import lombok.*;
-import org.springframework.data.annotation.PersistenceCreator;
+import lombok.experimental.FieldNameConstants;
 
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
+@FieldNameConstants
 public class Factor {
     private final String id;
     private final String code;
