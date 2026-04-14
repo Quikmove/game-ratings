@@ -35,7 +35,7 @@ public class RatingService {
                 .flatMap(rating -> {
                     if (rating.getType() != RatingType.MANUAL) {
                         return Mono.error(
-                                new RuntimeException("Can't change rating value for non manual rating"));
+                                new IllegalStateException("Can't change rating value for non manual rating"));
                     }
 
                     return scaleService.getGameFactorScale(input.gameId())
