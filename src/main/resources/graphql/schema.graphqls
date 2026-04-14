@@ -54,7 +54,8 @@ type FactorDto {
 type AdjustmentDto {
     id: ID,
     type: AdjustmentType,
-    value: Float
+    value: Float,
+    scale: Scale
 }
 
 input GameInput {
