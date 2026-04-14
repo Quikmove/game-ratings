@@ -2,13 +2,10 @@ package com.karifovas.gamerating.utils;
 
 import com.karifovas.gamerating.model.Rating;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-@SpringBootTest
 public class TopologicalSortUtilTest {
 
     private List<Rating> createTestRatings() {
