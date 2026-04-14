@@ -23,7 +23,7 @@ public class AdjustmentService {
                 .flatMap(adjustment -> {
                     var scale = adjustment.getValueScale();
 
-                    if (input.value() < scale.min() || input.value() > scale.max()) {
+                    if (input.value() != null && (input.value() < scale.min() || input.value() > scale.max())) {
                         return Mono.error(
                                 new ValueOutOfRangeException("Invalid value: %s. Expected range: [%s,%s]"
                                         .formatted(input.value(), scale.min(), scale.max())));
@@ -42,8 +42,7 @@ public class AdjustmentService {
 
                                 return ratingRepository.findByIdAndGameId(input.ratingId(), input.gameId())
                                         .flatMap(ratingCalculationService::calculateScore);
-                            })
-                            .thenReturn(true);
+                            });
                 });
     }
 

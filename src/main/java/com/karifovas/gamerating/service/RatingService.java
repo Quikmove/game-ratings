@@ -40,7 +40,7 @@ public class RatingService {
 
                     return scaleService.getGameFactorScale(input.gameId())
                             .flatMap(scale -> {
-                                if (input.value() < scale.min() || input.value() > scale.max()) {
+                                if (input.value() != null && (input.value() < scale.min() || input.value() > scale.max())) {
                                     return Mono.error(
                                             new ValueOutOfRangeException("Value out of range: %s. Expected range: [%s,%s]"
                                                     .formatted(input.value(), scale.min(), scale.max())));
