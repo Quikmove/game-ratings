@@ -36,9 +36,10 @@ public class Rating {
                 .build();
     }
 
-        public record DrivingRating(String id, String ratingId, float weight) {
+        @Builder
+        public record DrivingRating(String id, String ratingCode, float weight) {
             public DrivingRating copy() {
-                return new DrivingRating(this.id, this.ratingId, this.weight);
+                return new DrivingRating(this.id, this.ratingCode, this.weight);
             }
         }
 }
