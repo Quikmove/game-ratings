@@ -40,7 +40,7 @@ public class RatingCalculationService {
                             rating.getCode(),
                             ratingsByCode.values(),
                             Rating::getCode,
-                            candidate -> candidate.getDrivingRatings().stream()
+                            candidate -> candidate.getDrivingRatings() == null ? List.of() : candidate.getDrivingRatings().stream()
                                     .map(Rating.DrivingRating::ratingCode)
                                     .toList());
 
@@ -50,7 +50,7 @@ public class RatingCalculationService {
                                     .filter(Objects::nonNull)
                                     .toList(),
                             Rating::getCode,
-                            candidate -> candidate.getDrivingRatings().stream()
+                            candidate -> candidate.getDrivingRatings() == null ? List.of() : candidate.getDrivingRatings().stream()
                                     .map(Rating.DrivingRating::ratingCode)
                                     .toList());
 
