@@ -10,10 +10,10 @@ public record AdjustmentDto(
         String id,
         AdjustmentType type,
         BigDecimal value,
-        Scale scale
+        Scale valueScale
 ) {
     public record Scale(
-            Float min,
-            Float max
+            BigDecimal min,
+            BigDecimal max
     ) {}
 }

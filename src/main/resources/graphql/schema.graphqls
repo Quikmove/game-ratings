@@ -55,7 +55,7 @@ type AdjustmentDto {
     id: ID,
     type: AdjustmentType,
     value: Float,
-    scale: Scale
+    valueScale: Scale
 }
 
 input GameInput {
