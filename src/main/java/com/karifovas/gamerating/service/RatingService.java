@@ -5,6 +5,7 @@ import com.karifovas.gamerating.exception.EntityNotFoundException;
 import com.karifovas.gamerating.exception.ValueOutOfRangeException;
 import com.karifovas.gamerating.model.Rating;
 import com.karifovas.gamerating.model.RatingType;
+import com.karifovas.gamerating.repository.GameRepository;
 import com.karifovas.gamerating.repository.RatingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,20 +20,34 @@ public class RatingService {
     private final RatingRepository ratingRepository;
     private final RatingCalculationService calculationService;
     private final ScaleService scaleService;
+    private final GameRepository gameRepository;
 
     public Flux<Rating> getRatingsByGameId(String gameId) {
-        return ratingRepository.findAllByGameId(gameId)
-                .switchIfEmpty(
-                        Mono.error(
-                        new EntityNotFoundException(
-                                Rating.class.getSimpleName(),
-                                "Ratings not found by gameId: %s"
-                                .formatted(gameId)))
-                );
+        return ratingRepository
+                .findAllByGameId(gameId)
+                .switchIfEmpty(Flux.defer(() ->
+                    gameRepository
+                        .existsById(gameId)
+                        .flatMapMany(exists -> {
+                            if (!exists) {
+                                return Flux.error(new EntityNotFoundException(
+                                        "Game",
+                                        "Game not found with id: %s"
+                                                .formatted(gameId)
+                                ));
+                            }
+                            return Flux.error(new IllegalStateException(
+                                    "Invariant violated: ratings not found for game with id: %s"
+                                            .formatted(gameId)
+                            ));
+                        })
+                ));
     }
 
+
     public Mono<Rating> getRatingByIdAndGameId(String id, String gameId) {
-        return ratingRepository.findByIdAndGameId(id, gameId)
+        return ratingRepository
+                .findByIdAndGameId(id, gameId)
                 .switchIfEmpty(
                         Mono.error(
                                 new EntityNotFoundException(
@@ -45,12 +60,13 @@ public class RatingService {
     }
 
     public Mono<Boolean> updateRating(RatingInput input) {
-        return ratingRepository.findByIdAndGameId(input.ratingId(), input.gameId())
+        return ratingRepository
+                .findByIdAndGameId(input.ratingId(), input.gameId())
                 .switchIfEmpty(Mono.error(
                         new EntityNotFoundException(
                                 Rating.class.getSimpleName(),
                                 "Rating not found with id: %s and gameId: %s"
-                                .formatted(input.ratingId(), input.gameId()))))
+                                        .formatted(input.ratingId(), input.gameId()))))
                 .flatMap(rating -> {
                     if (rating.getType() != RatingType.MANUAL) {
                         return Mono.error(
