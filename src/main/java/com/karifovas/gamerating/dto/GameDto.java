@@ -14,18 +14,5 @@ public record GameDto(
     public record Scale(
             Float min,
             Float max
-    ) {
-        public static Scale from(Game.Scale gameScale) {
-            return new Scale(gameScale.min(), gameScale.max());
-        }
-    }
-
-    public static GameDto from(Game game) {
-        return GameDto.builder()
-                .id(game.getId())
-                .name(game.getName())
-                .description(game.getDescription())
-                .factorScale(Scale.from(game.getFactorScale()))
-                .build();
-    }
+    ) { }
 }

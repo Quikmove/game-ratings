@@ -4,6 +4,7 @@ import com.karifovas.gamerating.dto.AdjustmentInput;
 import com.karifovas.gamerating.dto.FactorInput;
 import com.karifovas.gamerating.dto.RatingDto;
 import com.karifovas.gamerating.dto.RatingInput;
+import com.karifovas.gamerating.mapper.RatingMapper;
 import com.karifovas.gamerating.service.AdjustmentService;
 import com.karifovas.gamerating.service.FactorService;
 import com.karifovas.gamerating.service.RatingService;
@@ -20,33 +21,21 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 public class GameRatingController {
-
     private final RatingService ratingService;
-    private final FactorService factorService;
-    private final AdjustmentService adjustmentService;
+    private final RatingMapper ratingMapper;
 
     @QueryMapping(name = "gameRatings")
     public Mono<List<RatingDto>> gameRatings(@Argument String gameId) {
-        return ratingService.getRatingsByGameId(gameId).map(RatingDto::from).collectList();
+        return ratingService.getRatingsByGameId(gameId).map(ratingMapper::ratingToDto).collectList();
     }
 
     @QueryMapping(name = "gameRating")
     public Mono<RatingDto> gameRating(@Argument String gameId,@Argument String id) {
-        return ratingService.getRatingByIdAndGameId(id, gameId).map(RatingDto::from);
+        return ratingService.getRatingByIdAndGameId(id, gameId).map(ratingMapper::ratingToDto);
     }
 
     @MutationMapping(name = "updateRating")
     public Mono<Boolean> updateRating(@Valid @Argument RatingInput input) {
         return ratingService.updateRating(input);
-    }
-
-    @MutationMapping(name = "updateFactor")
-    public Mono<Boolean> updateFactor(@Valid @Argument FactorInput input) {
-        return factorService.updateFactor(input);
-    }
-
-    @MutationMapping(name = "updateAdjustment")
-    public Mono<Boolean> updateAdjustment(@Valid @Argument AdjustmentInput input) {
-        return adjustmentService.updateAdjustment(input);
     }
 }

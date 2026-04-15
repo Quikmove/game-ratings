@@ -14,17 +14,4 @@ public record RatingDto(
         List<FactorDto> factors,
         List<AdjustmentDto> adjustments,
         Float value
-) {
-
-    public static RatingDto from(Rating rating) {
-        return RatingDto.builder()
-                .id(rating.getId())
-                .code(rating.getCode())
-                .name(rating.getName())
-                .description(rating.getDescription())
-                .factors(rating.getFactors().stream().map(FactorDto::from).toList())
-                .adjustments(rating.getAdjustments().stream().map(AdjustmentDto::from).toList())
-                .value(rating.getValue())
-                .build();
-    }
-}
+) { }
