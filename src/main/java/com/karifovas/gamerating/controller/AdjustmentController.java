@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 public class AdjustmentController {
     private final AdjustmentService adjustmentService;
 
-    @MutationMapping(name = "updateAdjustment")
+    @MutationMapping
     public Mono<Boolean> updateAdjustment(@Valid @Argument AdjustmentInput input) {
         return adjustmentService.updateAdjustment(input);
     }

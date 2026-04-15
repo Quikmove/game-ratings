@@ -22,22 +22,22 @@ public class GameController {
     private final GameService gameService;
     private final GameMapper gameMapper;
 
-    @QueryMapping(name = "games")
+    @QueryMapping
     public Mono<List<GameDto>> games() {
         return gameService.findAll().map(gameMapper::gameToDto).collectList();
     }
 
-    @QueryMapping(name = "game")
+    @QueryMapping
     public Mono<GameDto> game(@Argument String id) {
         return gameService.findById(id).map(gameMapper::gameToDto);
     }
 
-    @MutationMapping(name = "createGame")
+    @MutationMapping
     public Mono<GameDto> createGame(@Valid @Argument CreateGameInput input) {
         return gameService.createGame(input).map(gameMapper::gameToDto);
     }
 
-    @MutationMapping(name = "updateGame")
+    @MutationMapping
     public Mono<Boolean> updateGame(@Valid @Argument GameInput input) {
         return gameService.updateGame(input);
     }

@@ -24,17 +24,17 @@ public class GameRatingController {
     private final RatingService ratingService;
     private final RatingMapper ratingMapper;
 
-    @QueryMapping(name = "gameRatings")
+    @QueryMapping
     public Mono<List<RatingDto>> gameRatings(@Argument String gameId) {
         return ratingService.getRatingsByGameId(gameId).map(ratingMapper::ratingToDto).collectList();
     }
 
-    @QueryMapping(name = "gameRating")
+    @QueryMapping
     public Mono<RatingDto> gameRating(@Argument String gameId,@Argument String id) {
         return ratingService.getRatingByIdAndGameId(id, gameId).map(ratingMapper::ratingToDto);
     }
 
-    @MutationMapping(name = "updateRating")
+    @MutationMapping
     public Mono<Boolean> updateRating(@Valid @Argument RatingInput input) {
         return ratingService.updateRating(input);
     }

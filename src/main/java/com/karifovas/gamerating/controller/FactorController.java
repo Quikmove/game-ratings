@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 public class FactorController {
     private final FactorService factorService;
     
-    @MutationMapping(name = "updateFactor")
+    @MutationMapping
     public Mono<Boolean> updateFactor(@Valid @Argument FactorInput input) {
         return factorService.updateFactor(input);
     }
