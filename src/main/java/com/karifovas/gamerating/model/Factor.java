@@ -17,13 +17,4 @@ public class Factor {
     private final String description;
     private BigDecimal value;
 
-    public Factor copy() {
-        return Factor.builder()
-                .id(this.id)
-                .code(this.code)
-                .name(this.name)
-                .description(this.description)
-                .value(this.value)
-                .build();
-    }
 }

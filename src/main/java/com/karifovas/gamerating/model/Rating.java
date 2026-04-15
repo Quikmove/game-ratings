@@ -25,25 +25,7 @@ public class Rating {
     private List<DrivingRating> drivingRatings;
     private List<Adjustment> adjustments;
 
-    public Rating deepCopyForGame(String gameId) {
-        return Rating.builder()
-                .code(this.code)
-                .gameId(gameId)
-                .name(this.name)
-                .description(this.description)
-                .factors(this.factors == null ? List.of() : this.factors.stream().map(Factor::copy).toList())
-                .value(this.value)
-                .status(this.status)
-                .type(this.type)
-                .drivingRatings(this.drivingRatings == null ? List.of() : this.drivingRatings.stream().map(DrivingRating::copy).toList())
-                .adjustments(this.adjustments == null ? List.of() : this.adjustments.stream().map(Adjustment::copy).toList())
-                .build();
-    }
-
-        @Builder
+    @Builder
         public record DrivingRating(String id, String ratingCode, BigDecimal weight) {
-            public DrivingRating copy() {
-                return new DrivingRating(this.id, this.ratingCode, this.weight);
-            }
-        }
+    }
 }
