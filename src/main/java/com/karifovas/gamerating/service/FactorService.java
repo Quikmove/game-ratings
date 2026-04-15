@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 public class FactorService {
@@ -35,7 +37,7 @@ public class FactorService {
                                             .formatted(input.factorId(), input.ratingId(), input.gameId()))
                             ))
                             .flatMap(factor -> {
-                                if (factor.getValue().equals(input.value())) {
+                                if (Objects.equals(factor.getValue(), input.value())) {
                                     return Mono.just(false);
                                 }
 

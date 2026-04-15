@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 public class AdjustmentService {
@@ -40,7 +42,7 @@ public class AdjustmentService {
                                         .formatted(input.value(), scale.min(), scale.max())));
                     }
 
-                    if (adjustment.getValue().equals(input.value())) {
+                    if (Objects.equals(adjustment.getValue(), input.value())) {
                         return Mono.just(false);
                     }
 

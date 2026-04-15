@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 public class RatingService {
@@ -63,7 +65,7 @@ public class RatingService {
                                                     .formatted(input.value(), scale.min(), scale.max())));
                                 }
 
-                                if (rating.getValue().equals(input.value())) {
+                                if (Objects.equals(rating.getValue(),input.value())) {
                                     return Mono.just(false);
                                 }
 
