@@ -1,8 +1,9 @@
 package com.karifovas.gamerating.service;
 
 import com.karifovas.gamerating.dto.AdjustmentInput;
-import com.karifovas.gamerating.exception.AdjustmentNotFoundException;
+import com.karifovas.gamerating.exception.EntityNotFoundException;
 import com.karifovas.gamerating.exception.ValueOutOfRangeException;
+import com.karifovas.gamerating.model.Adjustment;
 import com.karifovas.gamerating.model.AdjustmentType;
 import com.karifovas.gamerating.repository.AdjustmentRepository;
 import com.karifovas.gamerating.repository.RatingRepository;
@@ -23,7 +24,8 @@ public class AdjustmentService {
         return adjustmentRepository.findById(input.adjustmentId(), input.ratingId(), input.gameId())
                 .switchIfEmpty(
                         Mono.error(
-                                new AdjustmentNotFoundException(
+                                new EntityNotFoundException(
+                                        Adjustment.class.getSimpleName(),
                                         "Adjustment not found with id: %s, ratingId: %s, gameId: %s"
                                                 .formatted(input.adjustmentId(), input.ratingId(), input.gameId())
                                 )

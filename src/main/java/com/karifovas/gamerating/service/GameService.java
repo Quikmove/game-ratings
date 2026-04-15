@@ -2,7 +2,7 @@ package com.karifovas.gamerating.service;
 
 import com.karifovas.gamerating.dto.CreateGameInput;
 import com.karifovas.gamerating.dto.GameInput;
-import com.karifovas.gamerating.exception.GameNotFoundException;
+import com.karifovas.gamerating.exception.EntityNotFoundException;
 import com.karifovas.gamerating.mapper.RatingCreationMapper;
 import com.karifovas.gamerating.model.Game;
 import com.karifovas.gamerating.model.Rating;
@@ -62,7 +62,9 @@ public class GameService {
         return gameRepository.findById(input.id())
                 .switchIfEmpty(
                         Mono.error(
-                                new GameNotFoundException("Game not found with id: %s"
+                                new EntityNotFoundException(
+                                        Game.class.getSimpleName(),
+                                        "Game not found with id: %s"
                                         .formatted(input.id())))
                 )
                 .flatMap(game -> {

@@ -1,7 +1,7 @@
 package com.karifovas.gamerating.service;
 
 import com.karifovas.gamerating.dto.RatingInput;
-import com.karifovas.gamerating.exception.RatingNotFoundException;
+import com.karifovas.gamerating.exception.EntityNotFoundException;
 import com.karifovas.gamerating.exception.ValueOutOfRangeException;
 import com.karifovas.gamerating.model.Rating;
 import com.karifovas.gamerating.model.RatingType;
@@ -22,7 +22,9 @@ public class RatingService {
         return ratingRepository.findAllByGameId(gameId)
                 .switchIfEmpty(
                         Mono.error(
-                        new RatingNotFoundException("Ratings not found by gameId: %s"
+                        new EntityNotFoundException(
+                                Rating.class.getSimpleName(),
+                                "Ratings not found by gameId: %s"
                                 .formatted(gameId)))
                 );
     }
@@ -31,7 +33,8 @@ public class RatingService {
         return ratingRepository.findByIdAndGameId(id, gameId)
                 .switchIfEmpty(
                         Mono.error(
-                                new RatingNotFoundException(
+                                new EntityNotFoundException(
+                                        Rating.class.getSimpleName(),
                                         "Rating not found with id: %s, gameId: %s"
                                                 .formatted(id, gameId)
                                 )
@@ -42,7 +45,9 @@ public class RatingService {
     public Mono<Boolean> updateRating(RatingInput input) {
         return ratingRepository.findByIdAndGameId(input.ratingId(), input.gameId())
                 .switchIfEmpty(Mono.error(
-                        new RatingNotFoundException("Rating not found with id: %s and gameId: %s"
+                        new EntityNotFoundException(
+                                Rating.class.getSimpleName(),
+                                "Rating not found with id: %s and gameId: %s"
                                 .formatted(input.ratingId(), input.gameId()))))
                 .flatMap(rating -> {
                     if (rating.getType() != RatingType.MANUAL) {
