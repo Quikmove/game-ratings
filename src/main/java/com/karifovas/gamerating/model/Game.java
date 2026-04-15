@@ -2,6 +2,8 @@ package com.karifovas.gamerating.model;
 
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Builder
@@ -13,8 +15,8 @@ public class Game {
     private final Scale factorScale;
 
     public record Scale(
-            Float min,
-            Float max
+            BigDecimal min,
+            BigDecimal max
     ) { }
 
 }

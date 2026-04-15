@@ -14,7 +14,6 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class RatingService {
-    private static final float EPSILON = 1e-6f;
     private final RatingRepository ratingRepository;
     private final RatingCalculationService calculationService;
     private final ScaleService scaleService;
@@ -53,13 +52,13 @@ public class RatingService {
 
                     return scaleService.getGameFactorScale(input.gameId())
                             .flatMap(scale -> {
-                                if (input.value() != null && (input.value() < scale.min() || input.value() > scale.max())) {
+                                if (input.value() != null && (input.value().compareTo(scale.min()) < 0 || input.value().compareTo(scale.max()) > 0)) {
                                     return Mono.error(
                                             new ValueOutOfRangeException("Value out of range: %s. Expected range: [%s,%s]"
                                                     .formatted(input.value(), scale.min(), scale.max())));
                                 }
 
-                                if (!hasChanged(rating.getValue(), input.value())) {
+                                if (rating.getValue().equals(input.value())) {
                                     return Mono.just(false);
                                 }
 
@@ -73,19 +72,4 @@ public class RatingService {
                 });
     }
 
-    private boolean hasChanged(Float oldV, Float newV) {
-        if (oldV == null && newV == null) {
-            return false;
-        }
-
-        if (oldV == null) {
-            return true;
-        }
-
-        if (newV == null) {
-            return true;
-        }
-
-        return Math.abs(newV - oldV) > EPSILON;
-    }
 }

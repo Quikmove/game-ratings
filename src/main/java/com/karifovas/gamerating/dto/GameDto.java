@@ -3,6 +3,8 @@ package com.karifovas.gamerating.dto;
 import com.karifovas.gamerating.model.Game;
 import lombok.Builder;
 
+import java.math.BigDecimal;
+
 @Builder
 public record GameDto(
         String id,
@@ -12,7 +14,7 @@ public record GameDto(
 
 ) {
     public record Scale(
-            Float min,
-            Float max
+            BigDecimal min,
+            BigDecimal max
     ) { }
 }

@@ -10,6 +10,8 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
+
 @Repository
 @RequiredArgsConstructor
 public class CustomAdjustmentRepositoryImpl implements CustomAdjustmentRepository, AdjustmentRepository {
@@ -42,7 +44,7 @@ public class CustomAdjustmentRepositoryImpl implements CustomAdjustmentRepositor
     }
 
     @Override
-    public Mono<Boolean> updateValue(String id, String ratingId, String gameId, Float value) {
+    public Mono<Boolean> updateValue(String id, String ratingId, String gameId, BigDecimal value) {
         var query = Query.query(
                 Criteria.where(Rating.Fields.gameId).is(gameId)
                         .and(Rating.Fields.id).is(ratingId)

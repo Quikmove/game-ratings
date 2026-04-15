@@ -3,7 +3,9 @@ package com.karifovas.gamerating.utils;
 import com.karifovas.gamerating.model.Rating;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 public class TopologicalSortUtilTest {
@@ -12,17 +14,17 @@ public class TopologicalSortUtilTest {
         var rating1 = Rating.builder()
                 .code("rating_1")
                 .drivingRatings(List.of(
-                        Rating.DrivingRating.builder().ratingCode("rating_3").weight(0.5f).build(),
-                        Rating.DrivingRating.builder().ratingCode("rating_4").weight(0.5f).build()
+                        Rating.DrivingRating.builder().ratingCode("rating_3").weight(BigDecimal.valueOf(0.5)).build(),
+                        Rating.DrivingRating.builder().ratingCode("rating_4").weight(BigDecimal.valueOf(0.5)).build()
                 ))
                 .build();
 
         var rating2 = Rating.builder()
                 .code("rating_2")
                 .drivingRatings(List.of(
-                        Rating.DrivingRating.builder().ratingCode("rating_1").weight(0.25f).build(),
-                        Rating.DrivingRating.builder().ratingCode("rating_4").weight(0.25f).build(),
-                        Rating.DrivingRating.builder().ratingCode("rating_5").weight(0.5f).build()
+                        Rating.DrivingRating.builder().ratingCode("rating_1").weight(BigDecimal.valueOf(0.25)).build(),
+                        Rating.DrivingRating.builder().ratingCode("rating_4").weight(BigDecimal.valueOf(0.25)).build(),
+                        Rating.DrivingRating.builder().ratingCode("rating_5").weight(BigDecimal.valueOf(0.5)).build()
                 ))
                 .build();
 

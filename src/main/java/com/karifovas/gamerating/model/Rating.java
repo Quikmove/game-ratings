@@ -3,6 +3,7 @@ package com.karifovas.gamerating.model;
 import lombok.*;
 import lombok.experimental.FieldNameConstants;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -10,6 +11,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @FieldNameConstants
+@EqualsAndHashCode
 public class Rating {
     private final String id;
     private final String code;
@@ -17,7 +19,7 @@ public class Rating {
     private final String name;
     private final String description;
     private List<Factor> factors;
-    private Float value;
+    private BigDecimal value;
     private RatingStatus status;
     private final RatingType type;
     private List<DrivingRating> drivingRatings;
@@ -39,7 +41,7 @@ public class Rating {
     }
 
         @Builder
-        public record DrivingRating(String id, String ratingCode, float weight) {
+        public record DrivingRating(String id, String ratingCode, BigDecimal weight) {
             public DrivingRating copy() {
                 return new DrivingRating(this.id, this.ratingCode, this.weight);
             }

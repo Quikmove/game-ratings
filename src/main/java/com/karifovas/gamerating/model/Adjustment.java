@@ -3,6 +3,8 @@ package com.karifovas.gamerating.model;
 import lombok.*;
 import lombok.experimental.FieldNameConstants;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Builder
@@ -15,7 +17,7 @@ public class Adjustment {
     private final String description;
     private final AdjustmentType type;
     private final ValueScale valueScale;
-    private Float value;
+    private BigDecimal value;
 
     public Adjustment copy() {
         return Adjustment.builder()
@@ -30,8 +32,8 @@ public class Adjustment {
     }
 
     public record ValueScale(
-            float min,
-            float max
+            BigDecimal min,
+            BigDecimal max
     ) {
     }
 }

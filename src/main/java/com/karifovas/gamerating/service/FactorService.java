@@ -11,7 +11,6 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class FactorService {
-    private final static float EPSILON = 1e-6f;
 
     private final FactorRepository factorRepository;
     private final RatingCalculationService calculationService;
@@ -21,7 +20,7 @@ public class FactorService {
     public Mono<Boolean> updateFactor(FactorInput input) {
         return scaleService.getGameFactorScale(input.gameId()).flatMap(
                 scale -> {
-                    if (input.value() != null && (input.value() < scale.min() || input.value() > scale.max())) {
+                    if (input.value() != null && (input.value().compareTo(scale.min()) < 0 || input.value().compareTo(scale.max()) > 0)) {
                         return Mono.error(
                                 new ValueOutOfRangeException("Invalid value: %s. Expected range: [%s,%s]"
                                         .formatted(input.value(), scale.min(), scale.max())));
@@ -33,7 +32,7 @@ public class FactorService {
                                             .formatted(input.factorId(), input.ratingId(), input.gameId()))
                             ))
                             .flatMap(factor -> {
-                                if (!hasChanged(factor.getValue(), input.value())) {
+                                if (factor.getValue().equals(input.value())) {
                                     return Mono.just(false);
                                 }
 
@@ -52,21 +51,5 @@ public class FactorService {
                             });
                 }
         );
-    }
-
-    private boolean hasChanged(Float oldV, Float newV) {
-        if (oldV == null && newV == null) {
-            return false;
-        }
-
-        if (oldV == null) {
-            return true;
-        }
-
-        if (newV == null) {
-            return true;
-        }
-
-        return Math.abs(newV - oldV) > EPSILON;
     }
 }

@@ -8,6 +8,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
+import java.util.List;
+
 @Mapper(
         componentModel = "spring"
 )
@@ -25,8 +27,14 @@ public interface RatingCreationMapper {
     @Mapping(target = "id", source = ".", qualifiedByName = "newId")
     Rating.DrivingRating toNewDrivingRating(Rating.DrivingRating drivingRating);
 
+    List<Factor> toNewFactors(List<Factor> factors);
+
+    List<Adjustment> toNewAdjustments(List<Adjustment> adjustments);
+
+    List<Rating.DrivingRating> toNewDrivingRatings(List<Rating.DrivingRating> drivingRatings);
+
     @Named("newId")
-    default <T> String newObjectId(T value) {
+    default <T> String newObjectId(@SuppressWarnings("unused") T value) {
         return new ObjectId().toString();
     }
 }

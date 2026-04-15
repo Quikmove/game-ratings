@@ -14,7 +14,6 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class AdjustmentService {
 
-    private static final float EPSILON = 1e-6f;
     private final AdjustmentRepository adjustmentRepository;
     private final RatingRepository ratingRepository;
     private final RatingCalculationService ratingCalculationService;
@@ -33,13 +32,13 @@ public class AdjustmentService {
                 .flatMap(adjustment -> {
                     var scale = adjustment.getValueScale();
 
-                    if (input.value() != null && (input.value() < scale.min() || input.value() > scale.max())) {
+                    if (input.value() != null && (input.value().compareTo(scale.min()) < 0 || input.value().compareTo(scale.max()) > 0)) {
                         return Mono.error(
                                 new ValueOutOfRangeException("Invalid value: %s. Expected range: [%s,%s]"
                                         .formatted(input.value(), scale.min(), scale.max())));
                     }
 
-                    if (!hasChanged(adjustment.getValue(), input.value())) {
+                    if (adjustment.getValue().equals(input.value())) {
                         return Mono.just(false);
                     }
 
@@ -56,22 +55,6 @@ public class AdjustmentService {
                                         .flatMap(ratingCalculationService::calculateScore);
                             });
                 });
-    }
-
-    private boolean hasChanged(Float oldV, Float newV) {
-        if (oldV == null && newV == null) {
-            return false;
-        }
-
-        if (oldV == null) {
-            return true;
-        }
-
-        if (newV == null) {
-            return true;
-        }
-
-        return Math.abs(newV - oldV) > EPSILON;
     }
 }
 
