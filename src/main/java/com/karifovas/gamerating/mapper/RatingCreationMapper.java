@@ -4,6 +4,7 @@ import com.karifovas.gamerating.model.Adjustment;
 import com.karifovas.gamerating.model.Factor;
 import com.karifovas.gamerating.model.Rating;
 import org.bson.types.ObjectId;
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -16,7 +17,8 @@ import java.util.List;
 public interface RatingCreationMapper {
 
     @Mapping(target = "id", source = ".", qualifiedByName = "newId")
-    Rating toNewRating(Rating rating);
+    @Mapping(target = "gameId", source = "gameId")
+    Rating toNewRatingWithGameId(Rating rating, @Context String gameId);
 
     @Mapping(target = "id", source = ".", qualifiedByName = "newId")
     Factor toNewFactor(Factor factor);

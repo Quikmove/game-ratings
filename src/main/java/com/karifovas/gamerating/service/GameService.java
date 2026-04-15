@@ -5,7 +5,6 @@ import com.karifovas.gamerating.dto.GameInput;
 import com.karifovas.gamerating.exception.EntityNotFoundException;
 import com.karifovas.gamerating.mapper.RatingCreationMapper;
 import com.karifovas.gamerating.model.Game;
-import com.karifovas.gamerating.model.Rating;
 import com.karifovas.gamerating.repository.GameRepository;
 import com.karifovas.gamerating.repository.RatingConfigurationRepository;
 import com.karifovas.gamerating.repository.RatingRepository;
@@ -46,9 +45,7 @@ public class GameService {
                     return gameRepository.save(game)
                             .flatMap(savedGame -> {
                                 var ratings = configuration.ratings().stream()
-                                        .map(rating -> rating.deepCopyForGame(savedGame.getId()))
-                                        .map(rating -> (Rating) rating) // fix for compile error when applying below static method
-                                        .map(ratingCreationMapper::toNewRating)
+                                        .map(rating -> ratingCreationMapper.toNewRatingWithGameId(rating, savedGame.getId()))
                                         .toList();
 
                                 return ratingRepository

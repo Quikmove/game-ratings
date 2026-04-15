@@ -27,7 +27,6 @@ public class CustomAdjustmentRepositoryImpl implements CustomAdjustmentRepositor
                         .and(Rating.Fields.id).is(ratingId)
                         .and(ADJUSTMENTS_ID_KEY).is(id)
         );
-        query.fields().elemMatch(Rating.Fields.adjustments, Criteria.where(Adjustment.Fields.id).is(id));
 
         return mongoTemplate.findOne(query, Rating.class)
                 .flatMap(rating -> {
