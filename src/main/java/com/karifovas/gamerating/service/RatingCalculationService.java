@@ -2,6 +2,7 @@ package com.karifovas.gamerating.service;
 
 import com.karifovas.gamerating.exception.EntityNotFoundException;
 import com.karifovas.gamerating.model.Factor;
+import com.karifovas.gamerating.model.Game;
 import com.karifovas.gamerating.model.Rating;
 import com.karifovas.gamerating.repository.RatingRepository;
 import com.karifovas.gamerating.utils.TopologicalSortUtil;
@@ -18,7 +19,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -26,66 +26,70 @@ public class RatingCalculationService {
     private final RatingRepository ratingRepository;
 
     public Mono<Boolean> calculateScore(Rating rating) {
-        return ratingRepository.findAllByGameId(rating.getGameId())
+        return ratingRepository
+                .findAllByGameId(rating.getGameId())
                 .switchIfEmpty(
                         Mono.error(
                                 new EntityNotFoundException(
-                                        Rating.class.getSimpleName(),
-                                        "Ratings not found with gameId: %s"
+                                        Game.class.getSimpleName(),
+                                        "Game not found with id: %s"
                                                 .formatted(rating.getGameId())
                                 )
                         )
                 )
                 .collectList()
-                .flatMap(allRatings -> {
-                    Map<String, Rating> ratingsByCode = Stream.concat(allRatings.stream(), Stream.of(rating))
-                            .collect(Collectors.toMap(Rating::getCode, Function.identity(),
-                                    (left, right) -> right));
+                .flatMapMany(allRatings -> {
+                    Map<Rating, Set<Rating>> ratingWithDependencies = allRatings
+                            .stream()
+                            .collect(Collectors.toMap(
+                                    Function.identity(),
+                                    r -> r.getDrivingRatings() == null ? Set.of() : r
+                                                                                     .getDrivingRatings()
+                                                                                     .stream()
+                                                                                     .map(dr -> allRatings
+                                                                                                .stream()
+                                                                                                .filter(candidate -> candidate
+                                                                                                                     .getCode()
+                                                                                                                     .equals(dr.ratingCode()))
+                                                                                                .findFirst()
+                                                                                                .orElseThrow())
+                                                                                     .collect(Collectors.toSet())
+                            ));
 
-                    Set<String> affectedCodes = TopologicalSortUtil.findDependents(
-                            rating.getCode(),
-                            ratingsByCode.values(),
+                    var affectedRatings = TopologicalSortUtil.findDependents(
+                            rating,
+                            ratingWithDependencies.keySet(),
                             Rating::getCode,
-                            candidate -> candidate.getDrivingRatings() == null ? List.of() : candidate.getDrivingRatings().stream()
-                                    .map(Rating.DrivingRating::ratingCode)
-                                    .toList());
+                            candidate -> allRatings.stream()
+                                                   .filter(other -> other.getDrivingRatings() != null && other
+                                                           .getDrivingRatings()
+                                                           .stream()
+                                                           .anyMatch(drivingRating -> candidate.getCode().equals(drivingRating.ratingCode())))
+                                                   .toList());
 
-                    List<Rating> orderedRatings = TopologicalSortUtil.sort(
-                            affectedCodes.stream()
-                                    .map(ratingsByCode::get)
-                                    .filter(Objects::nonNull)
-                                    .toList(),
+                    var ratingsByCode = allRatings.stream().collect(Collectors.toMap(Rating::getCode, Function.identity()));
+
+                    return Flux.fromIterable(TopologicalSortUtil.sort(
+                            affectedRatings,
                             Rating::getCode,
-                            candidate -> candidate.getDrivingRatings() == null ? List.of() : candidate.getDrivingRatings().stream()
-                                    .map(Rating.DrivingRating::ratingCode)
-                                    .toList());
+                            candidate -> candidate.getDrivingRatings() == null ? List.of() : candidate
+                                                                                             .getDrivingRatings()
+                                                                                             .stream()
+                                                                                             .map(Rating.DrivingRating::ratingCode)
+                                                                                             .toList()))
+                               .concatMap(r -> calculateValueByRatingType(r, ratingsByCode)
+                                       .doOnNext(r::setValue)
+                                       .thenReturn(r));
 
-                    return Flux.fromIterable(orderedRatings)
-                            .concatMap(currentRating ->
-                                    calculateValue(currentRating, ratingsByCode)
-                                            .flatMap(value -> {
-                                                currentRating.setValue(value);
-                                                return ratingRepository.save(currentRating);
-                                            })
-                                            .switchIfEmpty(Mono.defer(() -> {
-                                                currentRating.setValue(null);
-                                                return ratingRepository.save(currentRating);
-                                            }))
-
-                            )
-                            .then(Mono.just(true));
-                });
+                })
+                .concatMap(ratingRepository::save)
+                .then(Mono.just(true));
     }
 
 
-    private Mono<BigDecimal> calculateValue(Rating rating, Map<String, Rating> ratingsByCode) {
+    private Mono<BigDecimal> calculateValueByRatingType(Rating rating, Map<String, Rating> ratingsByCode) {
         return switch (rating.getType()) {
-            case MANUAL -> {
-                if (rating.getValue() == null) {
-                    yield Mono.empty();
-                }
-                yield Mono.just(rating.getValue());
-            }
+            case MANUAL -> rating.getValue() == null ? Mono.empty() : Mono.just(rating.getValue());
             case WEIGHTED_AVERAGE -> calculateByFactorAverage(rating.getFactors());
             case RATING_FORMULA -> calculateByRatingFormula(rating.getDrivingRatings(), ratingsByCode);
         };
@@ -93,11 +97,14 @@ public class RatingCalculationService {
     }
 
     private Mono<BigDecimal> calculateByFactorAverage(List<Factor> factors) {
-        if (factors.stream().anyMatch(f -> f.getValue() == null)) {
+        if (factors
+                .stream()
+                .anyMatch(f -> f.getValue() == null)) {
             return Mono.empty();
         }
 
-        var sum = factors.stream()
+        var sum = factors
+                .stream()
                 .map(Factor::getValue)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
@@ -110,19 +117,28 @@ public class RatingCalculationService {
         return Mono.just(average);
     }
 
-    private Mono<BigDecimal> calculateByRatingFormula(List<Rating.DrivingRating> drivingRatings, Map<String, Rating> ratingsByCode) {
-        Set<String> ratingCodes = drivingRatings.stream()
+    private Mono<BigDecimal> calculateByRatingFormula(List<Rating.DrivingRating> drivingRatings,
+                                                      Map<String, Rating> ratingsByCode) {
+        var ratingCodes = drivingRatings
+                .stream()
                 .map(Rating.DrivingRating::ratingCode)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
 
-        if (ratingCodes.stream().map(ratingsByCode::get).anyMatch(r -> r.getValue() == null)) {
+        if (ratingCodes
+                .stream()
+                .map(ratingsByCode::get)
+                .anyMatch(r -> r.getValue() == null)) {
             return Mono.empty();
         }
 
-        var weightedSum = drivingRatings.stream()
-                .map(dr -> ratingsByCode.get(dr.ratingCode()).getValue().multiply(dr.weight()))
+        var weightedSum = drivingRatings
+                .stream()
+                .map(dr -> ratingsByCode
+                        .get(dr.ratingCode())
+                        .getValue()
+                        .multiply(dr.weight()))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return Mono.just(weightedSum);

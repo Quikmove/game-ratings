@@ -5,21 +5,10 @@ import java.util.function.Function;
 
 public class TopologicalSortUtil {
 
-    /**
-     * Sorts nodes in topological order based on their dependencies.
-     *
-     * @param nodes the collection of nodes to sort
-     * @param idFn  function to extract a unique ID from a node
-     * @param depFn function to extract dependency IDs from a node
-     * @param <T>   node type
-     * @param <K>   ID type
-     * @return a list of nodes in dependency order
-     * @throws IllegalArgumentException if a cyclic dependency is detected
-     */
     public static <T, K> List<T> sort(
             Collection<T> nodes,
-            Function<T, K> idFn,
-            Function<T, ? extends Iterable<K>> depFn) {
+            Function<T, K> nodeIdExtractor,
+            Function<T, ? extends Iterable<K>> nodeDependenciesExtractor) {
 
         if (nodes == null || nodes.isEmpty()) {
             return List.of();
@@ -28,39 +17,41 @@ public class TopologicalSortUtil {
         // Build a map of ID to node for quick lookups, validating uniqueness
         Map<K, T> nodeMap = new HashMap<>();
         for (T node : nodes) {
-            K id = idFn.apply(node);
+            K id = nodeIdExtractor.apply(node);
             if (nodeMap.containsKey(id)) {
                 throw new IllegalArgumentException("Duplicate node ID detected: " + id);
             }
             nodeMap.put(id, node);
         }
 
-        // Build adjacency list and in-degree count
+        // Build adjacency list -
         Map<K, List<K>> adjacencyList = new HashMap<>();
-        Map<K, Integer> inDegree = new HashMap<>();
+        // How many unchecked nodes point to a node
+        Map<K, Integer> nodeInwardDegree = new HashMap<>();
 
         // Initialize all nodes
         for (T node : nodes) {
-            K id = idFn.apply(node);
+            K id = nodeIdExtractor.apply(node);
             adjacencyList.putIfAbsent(id, new ArrayList<>());
-            inDegree.putIfAbsent(id, 0);
+            nodeInwardDegree.putIfAbsent(id, 0)
+            ;
         }
 
         // Build the graph
         for (T node : nodes) {
-            K id = idFn.apply(node);
-            for (K depId : depFn.apply(node)) {
+            K id = nodeIdExtractor.apply(node);
+            for (K depId : nodeDependenciesExtractor.apply(node)) {
                 if (nodeMap.containsKey(depId)) {
                     adjacencyList.get(depId).add(id);
-                    inDegree.put(id, inDegree.get(id) + 1);
+                    nodeInwardDegree.put(id, nodeInwardDegree.get(id) + 1);
                 }
             }
         }
 
         // Kahn's algorithm
         Queue<K> queue = new LinkedList<>();
-        for (K id : inDegree.keySet()) {
-            if (inDegree.get(id) == 0) {
+        for (K id : nodeInwardDegree.keySet()) {
+            if (nodeInwardDegree.get(id) == 0) {
                 queue.offer(id);
             }
         }
@@ -71,8 +62,8 @@ public class TopologicalSortUtil {
             result.add(nodeMap.get(id));
 
             for (K neighbor : adjacencyList.get(id)) {
-                inDegree.put(neighbor, inDegree.get(neighbor) - 1);
-                if (inDegree.get(neighbor) == 0) {
+                nodeInwardDegree.put(neighbor, nodeInwardDegree.get(neighbor) - 1);
+                if (nodeInwardDegree.get(neighbor) == 0) {
                     queue.offer(neighbor);
                 }
             }
@@ -85,48 +76,36 @@ public class TopologicalSortUtil {
         return result;
     }
 
-    /**
-     * Finds all nodes that transitively depend on the given root node.
-     * Uses BFS to traverse the dependency graph and collect all dependents.
-     *
-     * @param rootId The ID of the root node to find dependents for
-     * @param nodes  The collection of all nodes
-     * @param idFn   Function to extract ID from a node
-     * @param depFn  Function to extract dependencies from a node
-     * @return A set of all node IDs that transitively depend on the root node (including the root itself)
-     */
-    public static <T, K> Set<K> findDependents(
-            K rootId,
+    public static <T, K> Set<T> findDependents(
+            T root,
             Collection<T> nodes,
-            Function<T, K> idFn,
-            Function<T, ? extends Iterable<K>> depFn) {
+            Function<T, K> identifierFunction,
+            Function<T, ? extends Collection<T>> getDirectDependentsFn) {
 
         if (nodes == null || nodes.isEmpty()) {
             return Set.of();
         }
 
-        // Build reverse dependency map: for each dependency, track which nodes depend on it
-        Map<K, List<K>> dependentsByCode = new HashMap<>();
-        for (T node : nodes) {
-            K nodeId = idFn.apply(node);
-            for (K depId : depFn.apply(node)) {
-                dependentsByCode.computeIfAbsent(depId, ignored -> new ArrayList<>())
-                        .add(nodeId);
-            }
-        }
-
         Set<K> visited = new LinkedHashSet<>();
-        Queue<K> queue = new ArrayDeque<>();
-        queue.add(rootId);
+        Queue<T> queue = new ArrayDeque<>();
+        Set<T> affected = new HashSet<>();
+
+        queue.add(root);
+        affected.add(root);
 
         while (!queue.isEmpty()) {
-            K current = queue.poll();
-            if (!visited.add(current)) {
+            T current = queue.poll();
+            var code = identifierFunction.apply(current);
+            if (!visited.add(code)) {
                 continue;
             }
-            queue.addAll(dependentsByCode.getOrDefault(current, List.of()));
+
+            var dependents = getDirectDependentsFn.apply(current);
+
+            queue.addAll(dependents);
+            affected.addAll(dependents);
         }
 
-        return visited;
+        return affected;
     }
 }
