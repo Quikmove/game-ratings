@@ -6,10 +6,10 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class EntityNotFoundException extends RuntimeException {
-    private final String entityClass;
+    private final String identifier;
     
-    public EntityNotFoundException(String entityClass, String message) {
+    public EntityNotFoundException(String identifier, String message) {
         super(message);
-        this.entityClass = entityClass;
+        this.identifier = identifier;
     }
 }
