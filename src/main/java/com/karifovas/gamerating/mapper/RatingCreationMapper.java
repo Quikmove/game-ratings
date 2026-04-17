@@ -17,7 +17,7 @@ import java.util.List;
 public interface RatingCreationMapper {
 
     @Mapping(target = "id", source = ".", qualifiedByName = "newId")
-    @Mapping(target = "gameId", source = "gameId")
+    @Mapping(target = "gameId", expression = "java( gameId )")
     Rating toNewRatingWithGameId(Rating rating, @Context String gameId);
 
     @Mapping(target = "id", source = ".", qualifiedByName = "newId")
