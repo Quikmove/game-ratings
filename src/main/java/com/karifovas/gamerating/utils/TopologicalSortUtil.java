@@ -91,7 +91,7 @@ public class TopologicalSortUtil {
         Set<T> affected = new HashSet<>();
 
         queue.add(root);
-        affected.add(root);
+
 
         while (!queue.isEmpty()) {
             T current = queue.poll();
@@ -102,8 +102,8 @@ public class TopologicalSortUtil {
 
             var dependents = getDirectDependentsFn.apply(current);
 
+            affected.add(current);
             queue.addAll(dependents);
-            affected.addAll(dependents);
         }
 
         return affected;
