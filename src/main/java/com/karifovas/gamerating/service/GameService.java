@@ -2,17 +2,17 @@ package com.karifovas.gamerating.service;
 
 import com.karifovas.gamerating.dto.CreateGameInput;
 import com.karifovas.gamerating.dto.GameInput;
+import com.karifovas.gamerating.exception.EntityNotFoundException;
+import com.karifovas.gamerating.mapper.RatingCreationMapper;
 import com.karifovas.gamerating.model.Game;
 import com.karifovas.gamerating.repository.GameRepository;
 import com.karifovas.gamerating.repository.RatingConfigurationRepository;
 import com.karifovas.gamerating.repository.RatingRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GameService {
@@ -20,6 +20,7 @@ public class GameService {
     private final GameRepository gameRepository;
     private final RatingRepository ratingRepository;
     private final RatingConfigurationRepository configurationRepository;
+    private final RatingCreationMapper ratingCreationMapper;
 
     public Flux<Game> findAll() {
         return gameRepository.findAll();
@@ -44,36 +45,35 @@ public class GameService {
                     return gameRepository.save(game)
                             .flatMap(savedGame -> {
                                 var ratings = configuration.ratings().stream()
-                                        .map(rating -> rating.deepCopyForGame(savedGame.getId()))
+                                        .map(rating -> ratingCreationMapper.toNewRatingWithGameId(rating, savedGame.getId()))
                                         .toList();
 
                                 return ratingRepository
                                         .saveAll(ratings)
                                         .then(Mono.just(savedGame));
                             });
-                })
-                .doOnError(error ->
-                        log.error("Failed to create game {}", input.name(), error));
+                });
     }
 
     public Mono<Boolean> updateGame(GameInput input) {
         return gameRepository.findById(input.id())
+                .switchIfEmpty(
+                        Mono.error(
+                                new EntityNotFoundException(
+                                        Game.class.getSimpleName(),
+                                        "Game not found with id: %s"
+                                        .formatted(input.id())))
+                )
                 .flatMap(game -> {
-                    if(input.name() != null) {
+                    if (input.name() != null) {
                         game.setName(input.name());
                     }
-                    if(input.description() != null) {
+                    if (input.description() != null) {
                         game.setDescription(input.description());
                     }
 
                     return gameRepository.save(game)
                             .then(Mono.just(true));
-                })
-                .switchIfEmpty(Mono.error(
-                        new RuntimeException("Game doesnt exist with id: %s".formatted(input.id()))));
-    }
-
-    public Mono<Game.Scale> getScale(String gameId) {
-        return gameRepository.findById(gameId).map(Game::getFactorScale);
+                });
     }
 }

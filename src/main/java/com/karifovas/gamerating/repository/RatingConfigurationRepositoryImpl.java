@@ -36,7 +36,7 @@ public class RatingConfigurationRepositoryImpl implements RatingConfigurationRep
                 externalConfiguration = objectMapper.readValue(inputStream, ExternalRatingConfiguration.class);
             }
 
-            Set<ConstraintViolation<ExternalRatingConfiguration>> violations = validator.validate(externalConfiguration);
+            var violations = validator.validate(externalConfiguration);
             if (!violations.isEmpty()) {
                 throw new ConstraintViolationException(violations);
             }

@@ -6,7 +6,7 @@ type Query {
 }
 
 type Mutation {
-    updateRating(input: RatingInput!): RatingDto,
+    updateRating(input: RatingInput!): Boolean,
     updateFactor(input: FactorInput!): Boolean,
     updateAdjustment(input: AdjustmentInput!): Boolean,
     createGame(input: CreateGameInput!): GameDto,
@@ -54,7 +54,8 @@ type FactorDto {
 type AdjustmentDto {
     id: ID,
     type: AdjustmentType,
-    value: Float
+    value: Float,
+    valueScale: Scale
 }
 
 input GameInput {
@@ -71,7 +72,7 @@ input CreateGameInput {
 input RatingInput {
     gameId: ID!,
     ratingId: ID!,
-    value: Float!
+    value: Float
 }
 
 input FactorInput {

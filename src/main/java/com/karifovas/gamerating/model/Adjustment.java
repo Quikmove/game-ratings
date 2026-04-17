@@ -1,11 +1,15 @@
 package com.karifovas.gamerating.model;
 
 import lombok.*;
+import lombok.experimental.FieldNameConstants;
+
+import java.math.BigDecimal;
 
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
+@FieldNameConstants
 public class Adjustment {
     private final String id;
     private final String code;
@@ -13,23 +17,11 @@ public class Adjustment {
     private final String description;
     private final AdjustmentType type;
     private final ValueScale valueScale;
-    private Float value;
-
-    public Adjustment copy() {
-        return Adjustment.builder()
-                .id(this.id)
-                .code(this.code)
-                .name(this.name)
-                .description(this.description)
-                .type(this.type)
-                .value(this.value)
-                .valueScale(this.valueScale)
-                .build();
-    }
+    private BigDecimal value;
 
     public record ValueScale(
-            float min,
-            float max
+            BigDecimal min,
+            BigDecimal max
     ) {
     }
 }

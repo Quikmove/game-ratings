@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public record ExternalRatingConfiguration(
@@ -11,8 +12,8 @@ public record ExternalRatingConfiguration(
         @NotNull @Valid List<@Valid Rating> ratings
 ) {
     public record Scale(
-            @NotNull Float min,
-            @NotNull Float max
+            @NotNull BigDecimal min,
+            @NotNull BigDecimal max
     ) {
     }
 
@@ -42,7 +43,7 @@ public record ExternalRatingConfiguration(
 
     public record SourceRating(
             @NotBlank String ratingId,
-            @NotNull Float weight
+            @NotNull BigDecimal weight
     ) {
     }
 

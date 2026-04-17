@@ -1,5 +1,6 @@
 package com.karifovas.gamerating.model;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public record RatingConfiguration(
@@ -7,8 +8,8 @@ public record RatingConfiguration(
         List<Rating> ratings
 ) {
     public record Scale(
-            float min,
-            float max
+            BigDecimal min,
+            BigDecimal max
     ) {
     }
 }

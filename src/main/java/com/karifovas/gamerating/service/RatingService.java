@@ -1,0 +1,98 @@
+package com.karifovas.gamerating.service;
+
+import com.karifovas.gamerating.dto.RatingInput;
+import com.karifovas.gamerating.exception.EntityNotFoundException;
+import com.karifovas.gamerating.exception.ValueOutOfRangeException;
+import com.karifovas.gamerating.model.Rating;
+import com.karifovas.gamerating.model.RatingType;
+import com.karifovas.gamerating.repository.GameRepository;
+import com.karifovas.gamerating.repository.RatingRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.util.Objects;
+
+@Service
+@RequiredArgsConstructor
+public class RatingService {
+    private final RatingRepository ratingRepository;
+    private final RatingCalculationService calculationService;
+    private final ScaleService scaleService;
+    private final GameRepository gameRepository;
+
+    public Flux<Rating> getRatingsByGameId(String gameId) {
+        return ratingRepository
+                .findAllByGameId(gameId)
+                .switchIfEmpty(Flux.defer(() ->
+                    gameRepository
+                        .existsById(gameId)
+                        .flatMapMany(exists -> {
+                            if (!exists) {
+                                return Flux.error(new EntityNotFoundException(
+                                        "Game",
+                                        "Game not found with id: %s"
+                                                .formatted(gameId)
+                                ));
+                            }
+                            return Flux.error(new IllegalStateException(
+                                    "Invariant violated: ratings not found for game with id: %s"
+                                            .formatted(gameId)
+                            ));
+                        })
+                ));
+    }
+
+
+    public Mono<Rating> getRatingByIdAndGameId(String id, String gameId) {
+        return ratingRepository
+                .findByIdAndGameId(id, gameId)
+                .switchIfEmpty(
+                        Mono.error(
+                                new EntityNotFoundException(
+                                        Rating.class.getSimpleName(),
+                                        "Rating not found with id: %s, gameId: %s"
+                                                .formatted(id, gameId)
+                                )
+                        )
+                );
+    }
+
+    public Mono<Boolean> updateRating(RatingInput input) {
+        return ratingRepository
+                .findByIdAndGameId(input.ratingId(), input.gameId())
+                .switchIfEmpty(Mono.error(
+                        new EntityNotFoundException(
+                                Rating.class.getSimpleName(),
+                                "Rating not found with id: %s and gameId: %s"
+                                        .formatted(input.ratingId(), input.gameId()))))
+                .flatMap(rating -> {
+                    if (rating.getType() != RatingType.MANUAL) {
+                        return Mono.error(
+                                new IllegalStateException("Can't change rating value for non manual type rating"));
+                    }
+
+                    return scaleService.getGameFactorScale(input.gameId())
+                            .flatMap(scale -> {
+                                if (input.value() != null && (input.value().compareTo(scale.min()) < 0 || input.value().compareTo(scale.max()) > 0)) {
+                                    return Mono.error(
+                                            new ValueOutOfRangeException("Value out of range: %s. Expected range: [%s,%s]"
+                                                    .formatted(input.value(), scale.min(), scale.max())));
+                                }
+
+                                if (Objects.equals(rating.getValue(),input.value())) {
+                                    return Mono.just(false);
+                                }
+
+                                rating.setValue(input.value());
+
+                                return ratingRepository.save(rating).flatMap(
+                                                calculationService::calculateScore
+                                        )
+                                        .then(Mono.just(true));
+                            });
+                });
+    }
+
+}

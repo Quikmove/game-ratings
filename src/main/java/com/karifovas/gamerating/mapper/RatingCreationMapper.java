@@ -1,0 +1,42 @@
+package com.karifovas.gamerating.mapper;
+
+import com.karifovas.gamerating.model.Adjustment;
+import com.karifovas.gamerating.model.Factor;
+import com.karifovas.gamerating.model.Rating;
+import org.bson.types.ObjectId;
+import org.mapstruct.Context;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+
+import java.util.List;
+
+@Mapper(
+        componentModel = "spring"
+)
+public interface RatingCreationMapper {
+
+    @Mapping(target = "id", source = ".", qualifiedByName = "newId")
+    @Mapping(target = "gameId", source = "gameId")
+    Rating toNewRatingWithGameId(Rating rating, @Context String gameId);
+
+    @Mapping(target = "id", source = ".", qualifiedByName = "newId")
+    Factor toNewFactor(Factor factor);
+
+    @Mapping(target = "id", source = ".", qualifiedByName = "newId")
+    Adjustment toNewAdjustment(Adjustment adjustment);
+
+    @Mapping(target = "id", source = ".", qualifiedByName = "newId")
+    Rating.DrivingRating toNewDrivingRating(Rating.DrivingRating drivingRating);
+
+    List<Factor> toNewFactors(List<Factor> factors);
+
+    List<Adjustment> toNewAdjustments(List<Adjustment> adjustments);
+
+    List<Rating.DrivingRating> toNewDrivingRatings(List<Rating.DrivingRating> drivingRatings);
+
+    @Named("newId")
+    default <T> String newObjectId(@SuppressWarnings("unused") T value) {
+        return new ObjectId().toString();
+    }
+}

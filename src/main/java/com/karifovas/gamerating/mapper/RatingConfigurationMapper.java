@@ -48,8 +48,8 @@ public interface RatingConfigurationMapper {
     @Mapping(target = "valueScale", source = "valueRange")
     Adjustment toAdjustment(ExternalRatingConfiguration.Adjustment externalAdjustment);
 
-
-    @Mapping(target = "ratingId", source = "ratingId")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "ratingCode", source = "ratingId")
     @Mapping(target = "weight", source = "weight")
     Rating.DrivingRating toDrivingRating(ExternalRatingConfiguration.SourceRating externalSourceRating);
 
