@@ -50,7 +50,7 @@ public class CustomAdjustmentRepositoryImpl implements CustomAdjustmentRepositor
                         .and(ADJUSTMENTS_ID_KEY).is(id)
         );
 
-        Update update = new Update().set(ADJUSTMENTS_UPDATE_VALUE_KEY, value);
+        var update = new Update().set(ADJUSTMENTS_UPDATE_VALUE_KEY, value);
 
         return mongoTemplate.updateFirst(query, update, Rating.class)
                 .map(result -> result.getModifiedCount() > 0);
